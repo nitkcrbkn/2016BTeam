@@ -4,6 +4,7 @@
 #include "SystemTaskManager.h"
 #include <stdlib.h>
 #include "message.h"
+#include "MW_GPIO.h"
 
 /*suspentionSystem*/
 static
@@ -20,7 +21,7 @@ int ABSystem(void);
  */
 
 int appInit(void){
-  message("msg","ApplicationInitialize");
+  message("msg","Message");
   /*GPIO の設定などでMW,GPIOではHALを叩く*/
   return EXIT_SUCCESS;
 }
@@ -28,7 +29,11 @@ int appInit(void){
 /*application tasks*/
 int appTask(void){
   int ret=0;
-
+  
+  if (MW_GPIORead(GPIOCID, GPIO_PIN_13))
+      MW_printf("Button Released\n");
+  else 
+      MW_printf("Button Pressed\n");
   /*それぞれの機構ごとに処理をする*/
   /*途中必ず定数回で終了すること。*/
   ret = suspentionSystem();
