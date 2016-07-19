@@ -6,6 +6,9 @@
 #include "message.h"
 #include "MW_GPIO.h"
 
+#define _MIN(x,y) ((x)<(y) ? (x) : (y))
+#define _MAX(x,y) ((x)>(y) ? (x) : (y))
+
 /*suspensionSystem*/
 static
 int suspensionSystem(void);
@@ -30,10 +33,6 @@ int appInit(void){
 int appTask(void){
   int ret=0;
   
-  if (MW_GPIORead(GPIOCID, GPIO_PIN_13))
-      MW_printf("Button Released\n");
-  else 
-      MW_printf("Button Pressed\n");
   /*それぞれの機構ごとに処理をする*/
   /*途中必ず定数回で終了すること。*/
   ret = suspensionSystem();
@@ -67,6 +66,11 @@ int ABSystem(void){
 static
 int suspensionSystem(void){
   const int num_of_motor = 2;/*モータの個数*/
+  const int inc_c = 200;/*Duty上昇時の傾き*/
+  const int dec_c = 200;/*Duty下降時の傾き*/
+  int target_duty;/*目標値となるDuty*/
+  int prev_duty;/*直前のDuty*/
+  int sd_duty = 0;
   int rc_analogdata;/*アナログデータ*/
   unsigned int idx;/*インデックス*/
   int i;
@@ -87,21 +91,38 @@ int suspensionSystem(void){
     }
 
     /*これは中央か?±3程度余裕を持つ必要がある。*/
-    if(abs(rc_analogdata)<CENTRAL_THRESHOLD){
-      g_md_h[idx].mode = D_MMOD_FREE;
-      g_md_h[idx].duty = 0;
+    if(abs(rc_analogdata)<CENTRAL_THRESHOLD)
+      target_duty = 0;
+    else
+      target_duty = rc_analogdata * MD_GAIN;
+    
+    prev_duty = g_md_h[idx].duty;
+    if (g_md_h[idx].mode == D_MMOD_FORWARD){/*直前が正回転なら*/
+      if (target_duty > prev_duty)
+	sd_duty = prev_duty + _MIN(inc_c , target_duty - prev_duty);
+      else
+	sd_duty = prev_duty + _MAX(-dec_c , target_duty - prev_duty);
+    }else {/*直前が逆回転 or Freeなら*/
+      if (target_duty < -prev_duty)
+	sd_duty = -prev_duty + _MAX(-inc_c , target_duty -(-prev_duty));
+      else
+	sd_duty = -prev_duty + _MIN(dec_c , target_duty  -(-prev_duty));
     }
+    if (sd_duty > 0)
+      g_md_h[idx].mode = D_MMOD_FORWARD;
+    else if (sd_duty < 0)
+      g_md_h[idx].mode = D_MMOD_BACKWARD;
     else{
-      if(rc_analogdata > 0){
-	/*前後の向き判定*/
-	g_md_h[idx].mode = D_MMOD_FORWARD;
-      }
-      else{
-	g_md_h[idx].mode = D_MMOD_BACKWARD;
-      }
-      /*絶対値を取りDutyに格納*/
-      g_md_h[idx].duty = abs(rc_analogdata) * MD_GAIN;
+      g_md_h[idx].mode = D_MMOD_FREE;
     }
+    g_md_h[idx].duty = abs(sd_duty);
   }
+  
   return EXIT_SUCCESS;
 }
+
+
+
+
+
+
