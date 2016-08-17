@@ -82,10 +82,16 @@ int suspensionSystem(void){
     case 0:
       rc_analogdata = DD_RCGetRY(g_rc_data);
       idx = MECHA1_MD1;
+      if ( _IS_REVERSE_R ){
+	rc_analogdata = -rc_analogdata;
+      }
       break;
     case 1:
       rc_analogdata = DD_RCGetLY(g_rc_data);
       idx = MECHA1_MD2;
+      if ( _IS_REVERSE_L ){
+	rc_analogdata = -rc_analogdata;
+      }
       break;
     default: return EXIT_FAILURE;
     }

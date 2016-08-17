@@ -17,6 +17,10 @@ int appInit(void);
 #define MECHA1_MD2 1
 #define CENTRAL_THRESHOLD 4
 
+/* Reverse MD direction */
+#define _IS_REVERSE_R 0
+#define _IS_REVERSE_L 0
+
 #define AB0 (1<<0)
 #define AB1 (1<<1)
 
