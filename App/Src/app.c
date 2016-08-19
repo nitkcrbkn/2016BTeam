@@ -15,7 +15,7 @@ int suspensionSystem(void);
 
 /*ABSystem*/
 static
-int ABSystem(void);
+int KickABSystem(void);
 
 /*メモ
  * g_ab_h...ABのハンドラ
@@ -23,6 +23,9 @@ int ABSystem(void);
  *
  * g_rc_data...RCのデータ
  */
+
+static
+int ArmABSystem(void);
 
 int appInit(void){
   message("msg", "Message");
@@ -41,7 +44,12 @@ int appTask(void){
     return ret;
   }
 
-  ret = ABSystem();
+  ret = KickABSystem();
+  if( ret ){
+    return ret;
+  }
+
+  ret = ArmABSystem();
   if( ret ){
     return ret;
   }
@@ -50,24 +58,34 @@ int appTask(void){
 }
 
 static
-int ABSystem(void){
-  g_ab_h[0].dat = 0x00;
-  if( __RC_ISPRESSED_CIRCLE(g_rc_data)){
-    g_ab_h[0].dat |= AB0;
+int KickABSystem(void){
+  static uint8_t s_prs = 1;
+  if (__RC_ISPRESSED_L1(g_rc_data) && 
+      __RC_ISPRESSED_R1(g_rc_data) && 
+      __RC_ISPRESSED_CIRCLE(g_rc_data)) {
+    if (s_prs == 0){
+      g_ab_h[0].dat ^= AB0;
+      g_ab_h[0].dat ^= AB1;
+      s_prs = 1;
+    }
+  } else {
+    s_prs = 0;
   }
-  if( __RC_ISPRESSED_CROSS(g_rc_data)){
-    g_ab_h[0].dat |= AB1;
-  }
+  return EXIT_SUCCESS;
+}
 
+static
+int ArmABSystem(void){
+  /*TODO*/
   return EXIT_SUCCESS;
 }
 
 /*プライベート 足回りシステム*/
 static
 int suspensionSystem(void){
-  const int num_of_motor = 2;/*モータの個数*/
-  const int inc_c = 200;/*Duty上昇時の傾き*/
-  const int dec_c = 200;/*Duty下降時の傾き*/
+  const int num_of_motor = 4;/*モータの個数*/
+  const int inc_c = 500;/*Duty上昇時の傾き*/
+  const int dec_c = 500;/*Duty下降時の傾き*/
   int target_duty;/*目標値となるDuty*/
   int prev_duty;/*直前のDuty*/
   int sd_duty = 0;
@@ -80,18 +98,26 @@ int suspensionSystem(void){
     /*それぞれの差分*/
     switch( i ){
     case 0:
-      rc_analogdata = DD_RCGetRY(g_rc_data);
-      idx = MECHA1_MD1;
-      if ( _IS_REVERSE_R ){
+      rc_analogdata = DD_RCGetLY(g_rc_data);
+      if (_IS_REVERSE_R)
 	rc_analogdata = -rc_analogdata;
-      }
+      idx = MECHA1_MD1;
       break;
     case 1:
       rc_analogdata = DD_RCGetLY(g_rc_data);
       idx = MECHA1_MD2;
-      if ( _IS_REVERSE_L ){
+      if (_IS_REVERSE_L)
 	rc_analogdata = -rc_analogdata;
-      }
+      break;
+    case 2:
+      rc_analogdata = 0;
+      idx = MECHA2_MD1;
+      /*TODO(回転機構用モータ)*/
+      break;
+    case 3:
+      rc_analogdata = 0;
+      idx = MECHA2_MD2;
+      /*TODO(リール機構用モータ)*/
       break;
     default: return EXIT_FAILURE;
     }
