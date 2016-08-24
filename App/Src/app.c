@@ -59,7 +59,7 @@ int appTask(void){
 
 static
 int KickABSystem(void){
-  static uint8_t s_prs = 1;
+  static uint8_t s_prs = 0;
   if (__RC_ISPRESSED_L1(g_rc_data) && 
       __RC_ISPRESSED_R1(g_rc_data) && 
       __RC_ISPRESSED_CIRCLE(g_rc_data)) {
@@ -83,7 +83,8 @@ int ArmABSystem(void){
 /*プライベート 足回りシステム*/
 static
 int suspensionSystem(void){
-  const int num_of_motor = 4;/*モータの個数*/
+  const int num_of_motor = DD_NUM_OF_MD;/*モータの個数*/
+  const int analog_max = 15;
   const int inc_c = 500;/*Duty上昇時の傾き*/
   const int dec_c = 500;/*Duty下降時の傾き*/
   int target_duty;/*目標値となるDuty*/
@@ -98,13 +99,21 @@ int suspensionSystem(void){
     /*それぞれの差分*/
     switch( i ){
     case 0:
-      rc_analogdata = DD_RCGetLY(g_rc_data);
+      rc_analogdata = -(DD_RCGetRY(g_rc_data));
+      if (__RC_ISPRESSED_R2(g_rc_data) && !(__RC_ISPRESSED_L2(g_rc_data)))
+	rc_analogdata = analog_max;
+      if (__RC_ISPRESSED_L2(g_rc_data) && !(__RC_ISPRESSED_R2(g_rc_data)))
+	rc_analogdata = -analog_max;
       if (_IS_REVERSE_R)
 	rc_analogdata = -rc_analogdata;
       idx = MECHA1_MD1;
       break;
     case 1:
-      rc_analogdata = DD_RCGetLY(g_rc_data);
+      rc_analogdata = -(DD_RCGetRY(g_rc_data));
+      if (__RC_ISPRESSED_R2(g_rc_data) && !(__RC_ISPRESSED_L2(g_rc_data)))
+	rc_analogdata = -analog_max;
+      if (__RC_ISPRESSED_L2(g_rc_data) && !(__RC_ISPRESSED_R2(g_rc_data)))
+	rc_analogdata = analog_max;
       idx = MECHA1_MD2;
       if (_IS_REVERSE_L)
 	rc_analogdata = -rc_analogdata;

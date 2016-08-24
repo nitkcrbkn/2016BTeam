@@ -14,12 +14,12 @@ int appInit(void);
 #define DD_NUM_OF_AB 2
 
 /*駆動部*/
-#define MECHA1_MD1 0x00
-#define MECHA1_MD2 0x01
+#define MECHA1_MD1 0
+#define MECHA1_MD2 1
 
 /*回転機構用モータ,リール機構用モータ*/
-#define MECHA2_MD1 0x02
-#define MECHA2_MD2 0x03
+#define MECHA2_MD1 2
+#define MECHA2_MD2 3
 
 #define CENTRAL_THRESHOLD 4
 
