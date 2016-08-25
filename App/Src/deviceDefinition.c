@@ -14,14 +14,16 @@ DD_MDHand_t g_md_h[DD_NUM_OF_MD] = {
     0, /* default duty */
     D_MMOD_FREE, /* mode */
   },
-  { 0x12,	/*回転機構**/
+  /*
+  { 0x12,	//回転機構
     0,
     D_MMOD_FREE,
   },
-  { 0x13,	/*リール機構*/
+  { 0x13,	//リール機構
     0,
     D_MMOD_FREE,
   },
+  */
 };
 #endif
 #if DD_NUM_OF_AB

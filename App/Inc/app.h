@@ -2,7 +2,7 @@
 #define __APP_H
 
 /*NO Device mode*/
-#define _NO_DEVICE 1
+#define _NO_DEVICE 0
 
 #include "DD_RC.h"
 #include "DD_MD.h"
@@ -10,8 +10,8 @@
 int appTask(void);
 int appInit(void);
 
-#define DD_NUM_OF_MD 4
-#define DD_NUM_OF_AB 2
+#define DD_NUM_OF_MD 2
+#define DD_NUM_OF_AB 0
 
 /*駆動部*/
 #define MECHA1_MD1 0
