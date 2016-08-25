@@ -7,6 +7,8 @@
 #include "MW_GPIO.h"
 #include "MW_flash.h"
 #include "constManager.h"
+#include "trapezoid_ctrl.h"
+
 /*suspensionSystem*/
 static
 int suspensionSystem(void);
@@ -24,9 +26,6 @@ int KickABSystem(void);
 
 static
 int ArmABSystem(void);
-
-static
-void TrapezoidControl(int, int);/*(Analogdata, index)*/
 
 int appInit(void){
   message("msg", "Message");
@@ -64,115 +63,113 @@ int appTask(void){
   return EXIT_SUCCESS;
 }
 
+/*プライベート キック用シリンダ*/
 static
 int KickABSystem(void){
-  /* static uint8_t s_prs = 0; */
-  /* if (__RC_ISPRESSED_L1(g_rc_data) &&  */
-  /*     __RC_ISPRESSED_R1(g_rc_data) &&  */
-  /*     __RC_ISPRESSED_CIRCLE(g_rc_data)) { */
-  /*   if (s_prs == 0){ */
-  /*     g_ab_h[0].dat ^= AB0; */
-  /*     g_ab_h[0].dat ^= AB1; */
-  /*     s_prs = 1; */
-  /*   } */
-  /* } else { */
-  /*   s_prs = 0; */
-  /* } */
+  static uint8_t prs_lrc_s = 0; 
+  if ( (__RC_ISPRESSED_L1(g_rc_data)) &&  
+       (__RC_ISPRESSED_R1(g_rc_data)) &&  
+       (__RC_ISPRESSED_CIRCLE(g_rc_data)) ) { 
+    if (prs_lrc_s == 0){ 
+      g_ab_h[DRIVER_AB].dat ^= KICK_AB_R;
+      g_ab_h[DRIVER_AB].dat ^= KICK_AB_L; 
+      prs_lrc_s = 1;
+    } 
+  } else { 
+    prs_lrc_s = 0; 
+  } 
   return EXIT_SUCCESS;
 }
 
+/*プライベート アーム展開*/
 static
 int ArmABSystem(void){
   /*TODO*/
   return EXIT_SUCCESS;
 }
 
-/*プライベート 足回りシステム*/
+/*プライベート MD制御*/
 static
 int suspensionSystem(void){
   const int num_of_motor = DD_NUM_OF_MD;/*モータの個数*/
   const int analog_max = 15;
-  int rc_analogdata;/*アナログデータ*/
-  int target;
-  int gain = MD_GAIN;;
-  unsigned int idx;/*インデックス*/
-  int i;
+  int rc_analogdata;	/*コントローラから送られるアナログデータを格納*/
+  int target;		/*目標となる制御値*/
+  int gain;		/*アナログデータと掛け合わせて使うgain値*/
+  unsigned int idx;	/*インデックス*/
+  const int incr = 500;	/*Duty上昇時の変化量*/
+  const int decr = 500;	/*Duty下降時の変化量*/
+  int i;		/*カウンタ用*/
 
   /*for each motor*/
   for( i = 0; i < num_of_motor; i++ ){
+    gain = MD_GAIN;
+    idx = i;
     /*それぞれの差分*/
     switch( i ){
-    case 0:
+    case DRIVE_MD_R:
       rc_analogdata = -(DD_RCGetRY(g_rc_data));
-      if (__RC_ISPRESSED_R2(g_rc_data) && !(__RC_ISPRESSED_L2(g_rc_data)))
+      if ( (__RC_ISPRESSED_R2(g_rc_data)) &&
+	  !(__RC_ISPRESSED_L2(g_rc_data)) )
 	rc_analogdata = -analog_max;
-      if (__RC_ISPRESSED_L2(g_rc_data) && !(__RC_ISPRESSED_R2(g_rc_data)))
+      
+      if ( (__RC_ISPRESSED_L2(g_rc_data)) &&
+	  !(__RC_ISPRESSED_R2(g_rc_data)) )
 	rc_analogdata = analog_max;
+      
       if (_IS_REVERSE_R)
 	rc_analogdata = -rc_analogdata;
-      idx = MECHA1_MD1;
       break;
-    case 1:
+     
+    case DRIVE_MD_L:
       rc_analogdata = -(DD_RCGetRY(g_rc_data));
-      if (__RC_ISPRESSED_R2(g_rc_data) && !(__RC_ISPRESSED_L2(g_rc_data)))
+      if ( (__RC_ISPRESSED_R2(g_rc_data)) &&
+	  !(__RC_ISPRESSED_L2(g_rc_data)) )
 	rc_analogdata = analog_max;
-      if (__RC_ISPRESSED_L2(g_rc_data) && !(__RC_ISPRESSED_R2(g_rc_data)))
+      
+      if ( (__RC_ISPRESSED_L2(g_rc_data)) &&
+	  !(__RC_ISPRESSED_R2(g_rc_data)) )
 	rc_analogdata = -analog_max;
-      idx = MECHA1_MD2;
+      
       if (_IS_REVERSE_L)
 	rc_analogdata = -rc_analogdata;
       break;
-    case 2:
+      
+    case ROTATE_MECHA_MD:	
+      gain = MD_GAIN / 2;
       rc_analogdata = 0;
-      idx = MECHA2_MD1;
-      /*TODO(回転機構用モータ)*/
+      if ( (__RC_ISPRESSED_L1(g_rc_data)) 	&&
+	   (__RC_ISPRESSED_R1(g_rc_data)) 	&&
+	   (__RC_ISPRESSED_CROSS(g_rc_data)) 	&&
+	  !(__RC_ISPRESSED_TRIANGLE(g_rc_data)) )
+	rc_analogdata = -analog_max;
+      
+      if ( (__RC_ISPRESSED_L1(g_rc_data)) 	&&
+	   (__RC_ISPRESSED_R1(g_rc_data)) 	&&
+	   (__RC_ISPRESSED_TRIANGLE(g_rc_data)) &&
+	  !(__RC_ISPRESSED_CROSS(g_rc_data)) )
+	rc_analogdata = analog_max;
       break;
-    case 3:
+      
+    case REEL_MECHA_MD:		/*リール機構用モータ*/
       rc_analogdata = 0;
-      idx = MECHA2_MD2;
-      /*TODO(リール機構用モータ)*/
+      /*TODO*/
       break;
-    default: return EXIT_FAILURE;
+      
+    default:
+       message("err", "real MDs are fewer than defined");
+      return EXIT_FAILURE;
     }
-
+    
     /*これは中央か?±3程度余裕を持つ必要がある。*/
-    if( abs(rc_analogdata) < CENTRAL_THRESHOLD )
+    if( abs(rc_analogdata) > CENTRAL_THRESHOLD ) {
       target = rc_analogdata * gain;
-    else 
+    }
+    else { 
       target = 0;
-    TrapezoidControl(target, idx);
-   
+    }
+    TrapezoidCtrl(target, &(g_md_h[idx]), incr, decr);
   }
   return EXIT_SUCCESS;
 } /* suspensionSystem */
 
-void TrapezoidControl(int target_duty, int index){
-  const int inc_c = 500;/*Duty上昇時の傾き*/
-  const int dec_c = 500;/*Duty下降時の傾き*/
-  int prev_duty;/*直前のDuty*/
-  int sd_duty = 0;
-  
-  prev_duty = g_md_h[index].duty;
-  if( g_md_h[index].mode == D_MMOD_FORWARD ){/*直前が正回転なら*/
-    if( target_duty > prev_duty ){
-      sd_duty = prev_duty + _MIN(inc_c, target_duty - prev_duty);
-    } else{
-      sd_duty = prev_duty + _MAX(-dec_c, target_duty - prev_duty);
-    }
-  }else {/*直前が逆回転 or Freeなら*/
-    if( target_duty < -prev_duty ){
-      sd_duty = -prev_duty + _MAX(-inc_c, target_duty - ( -prev_duty ));
-    } else{
-      sd_duty = -prev_duty + _MIN(dec_c, target_duty - ( -prev_duty ));
-    }
-  }
-  if( sd_duty > 0 ){
-    g_md_h[index].mode = D_MMOD_FORWARD;
-  } else if( sd_duty < 0 ){
-    g_md_h[index].mode = D_MMOD_BACKWARD;
-  } else{
-    g_md_h[index].mode = D_MMOD_FREE;
-  }
-  g_md_h[index].duty = abs(sd_duty);
-  
-}
