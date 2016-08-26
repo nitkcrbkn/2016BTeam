@@ -9,23 +9,23 @@
 #include "constManager.h"
 #include "trapezoid_ctrl.h"
 
-/*suspensionSystem*/
 static
 int suspensionSystem(void);
-
-/*ABSystem*/
-static
-int KickABSystem(void);
-
 /*メモ
  * g_ab_h...ABのハンドラ
  * g_md_h...MDのハンドラ
- *
+ * 
  * g_rc_data...RCのデータ
  */
 
 static
-int ArmABSystem(void);
+int SteerCtrl(void);
+
+static
+int ArmSystem(void);
+
+static
+int ArmRotate(void);
 
 int appInit(void){
   message("msg", "Message");
@@ -49,50 +49,82 @@ int appTask(void){
   if( ret ){
     return ret;
   }
-
-  ret = KickABSystem();
+  
+  ret = SteerCtrl();
   if( ret ){
     return ret;
   }
-
-  ret = ArmABSystem();
+  
+  ret = ArmRotate();
   if( ret ){
     return ret;
   }
-
+  
+  ret = ArmSystem();
+  if( ret ){
+    return ret;
+  }
   return EXIT_SUCCESS;
 }
 
-/*プライベート キック用シリンダ*/
+/*Private ステア制御*/
 static
-int KickABSystem(void){
-  static uint8_t prs_lrc_s = 0; 
-  if ( (__RC_ISPRESSED_L1(g_rc_data)) &&  
-       (__RC_ISPRESSED_R1(g_rc_data)) &&  
-       (__RC_ISPRESSED_CIRCLE(g_rc_data)) ) { 
-    if (prs_lrc_s == 0){ 
-      g_ab_h[DRIVER_AB].dat ^= KICK_AB_R;
-      g_ab_h[DRIVER_AB].dat ^= KICK_AB_L; 
-      prs_lrc_s = 1;
-    } 
-  } else { 
-    prs_lrc_s = 0; 
+int SteerCtrl(void){
+  /* T o D o */
+  g_md_h[STEER_MD_R].mode = D_MMOD_FREE;
+  g_md_h[STEER_MD_R].duty = 0;
+  g_md_h[STEER_MD_L].mode = D_MMOD_FREE;
+  g_md_h[STEER_MD_L].duty = 0;
+  return EXIT_SUCCESS;
+}
+
+/*Private アーム開閉*/
+static
+int ArmSystem(void){
+  static int prs_tri_s = 0;
+  if ( (__RC_ISPRESSED_L1(g_rc_data)) &&
+       (__RC_ISPRESSED_R1(g_rc_data)) &&
+       (__RC_ISPRESSED_TRIANGLE(g_rc_data)) ) {
+    if (prs_tri_s == 0) {
+      g_ab_h[DRIVER_AB].dat ^= ARM_OC_AB;
+      g_ab_h[DRIVER_VM].dat ^= STICK_BOX_VM;
+      prs_tri_s = 1;
+    }
+  } else {
+    prs_tri_s = 0;
   } 
   return EXIT_SUCCESS;
 }
 
-/*プライベート アーム展開*/
+/*Private アーム上下*/
 static
-int ArmABSystem(void){
-  /*TODO*/
+int ArmRotate(void){
+  const int fakean = 8;
+  if ( (__RC_ISPRESSED_UP(g_rc_data)) &&
+      !(__RC_ISPRESSED_DOWN(g_rc_data)) &&
+       (MW_GPIORead(GPIOBID, GPIO_PIN_15) == 0) ){
+    g_md_h[ARM_MOVE_MD].mode = D_MMOD_FORWARD;
+    g_md_h[ARM_MOVE_MD].duty = fakean * MD_GAIN;
+    return EXIT_SUCCESS;
+  }
+  if ( (__RC_ISPRESSED_DOWN(g_rc_data)) &&
+      !(__RC_ISPRESSED_UP(g_rc_data)) &&
+       (MW_GPIORead(GPIOCID, GPIO_PIN_0) == 0) ){
+    g_md_h[ARM_MOVE_MD].mode = D_MMOD_BACKWARD;
+    g_md_h[ARM_MOVE_MD].duty = fakean * MD_GAIN;
+    return EXIT_SUCCESS;
+  }
+  
+  g_md_h[ARM_MOVE_MD].duty = 0;
+  g_md_h[ARM_MOVE_MD].mode = D_MMOD_FREE;
   return EXIT_SUCCESS;
 }
 
-/*プライベート MD制御*/
+/*Private MD制御*/
 static
 int suspensionSystem(void){
-  const int num_of_motor = DD_NUM_OF_MD;/*モータの個数*/
-  const int analog_max = 15;
+  const int num_of_motor = 2;/*モータの個数*/
+  const int analog_max = 13;
   int rc_analogdata;	/*コントローラから送られるアナログデータを格納*/
   int target;		/*目標となる制御値*/
   int gain;		/*アナログデータと掛け合わせて使うgain値*/
@@ -133,27 +165,6 @@ int suspensionSystem(void){
       
       if (_IS_REVERSE_L)
 	rc_analogdata = -rc_analogdata;
-      break;
-      
-    case ROTATE_MECHA_MD:	
-      gain = MD_GAIN / 2;
-      rc_analogdata = 0;
-      if ( (__RC_ISPRESSED_L1(g_rc_data)) 	&&
-	   (__RC_ISPRESSED_R1(g_rc_data)) 	&&
-	   (__RC_ISPRESSED_CROSS(g_rc_data)) 	&&
-	  !(__RC_ISPRESSED_TRIANGLE(g_rc_data)) )
-	rc_analogdata = -analog_max;
-      
-      if ( (__RC_ISPRESSED_L1(g_rc_data)) 	&&
-	   (__RC_ISPRESSED_R1(g_rc_data)) 	&&
-	   (__RC_ISPRESSED_TRIANGLE(g_rc_data)) &&
-	  !(__RC_ISPRESSED_CROSS(g_rc_data)) )
-	rc_analogdata = analog_max;
-      break;
-      
-    case REEL_MECHA_MD:		/*リール機構用モータ*/
-      rc_analogdata = 0;
-      /*TODO*/
       break;
       
     default:
