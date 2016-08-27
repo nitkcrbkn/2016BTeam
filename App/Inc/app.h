@@ -10,6 +10,8 @@
 int appTask(void);
 int appInit(void);
 
+#define MD_ARM_DUTY 5000
+
 #define CENTRAL_THRESHOLD 4
 
 /*Reverse MD direction*/

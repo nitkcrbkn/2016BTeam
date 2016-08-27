@@ -83,17 +83,17 @@ int SteerCtrl(void){
 /*Private アーム開閉*/
 static
 int ArmOC(void){
-  static int prs_tri_s = 0;
+  static int had_pressed_tri_s = 0;
   if(( __RC_ISPRESSED_L1(g_rc_data)) &&
      ( __RC_ISPRESSED_R1(g_rc_data)) &&
      ( __RC_ISPRESSED_TRIANGLE(g_rc_data))){
-    if( prs_tri_s == 0 ){
+    if( had_pressed_tri_s == 0 ){
       g_ab_h[DRIVER_AB].dat ^= ARM_OC_AB;
       g_ab_h[DRIVER_VM].dat ^= STICK_BOX_VM;
-      prs_tri_s = 1;
+      had_pressed_tri_s = 1;
     }
   } else {
-    prs_tri_s = 0;
+    had_pressed_tri_s = 0;
   }
   return EXIT_SUCCESS;
 }
@@ -101,19 +101,18 @@ int ArmOC(void){
 /*Private アーム上下*/
 static
 int ArmRotate(void){
-  const int fakean = 8;
   if(( __RC_ISPRESSED_UP(g_rc_data)) &&
      !( __RC_ISPRESSED_DOWN(g_rc_data)) &&
      ( MW_GPIORead(GPIOBID, GPIO_PIN_15)) ){
     g_md_h[ARM_MOVE_MD].mode = D_MMOD_BACKWARD;
-    g_md_h[ARM_MOVE_MD].duty = fakean * MD_GAIN;
+    g_md_h[ARM_MOVE_MD].duty = MD_ARM_DUTY;
     return EXIT_SUCCESS;
   }
   if(( __RC_ISPRESSED_DOWN(g_rc_data)) &&
      !( __RC_ISPRESSED_UP(g_rc_data)) &&
      ( MW_GPIORead(GPIOCID, GPIO_PIN_0)) ){
     g_md_h[ARM_MOVE_MD].mode = D_MMOD_FORWARD;
-    g_md_h[ARM_MOVE_MD].duty = fakean * MD_GAIN;
+    g_md_h[ARM_MOVE_MD].duty = MD_ARM_DUTY;
     return EXIT_SUCCESS;
   }
 
