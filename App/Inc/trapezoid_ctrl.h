@@ -1,7 +1,12 @@
-#ifndef __TRAPEZOID_CTRL
-#define __TRAPEZOID_CTRL
+#ifndef __TRAPEZOID_CTRL_H
+#define __TRAPEZOID_CTRL_H
 
-void TrapezoidCtrl(int target_duty, DD_MDHand_t *handle, int inc_c, int dec_c);
+typedef struct {
+  int inc_con;	/*上昇時の変化量*/
+  int dec_con;	/*下降時の変化量*/
+} tc_const_t;
+
+void TrapezoidCtrl(int target_duty, DD_MDHand_t *handle, tc_const_t idval);
 
 #endif
 

@@ -23,7 +23,7 @@ static
 int SteerCtrl(void);
 
 static
-int ArmSystem(void);
+int ArmOC(void);
 
 static
 int ArmRotate(void);
@@ -62,7 +62,7 @@ int appTask(void){
     return ret;
   }
 
-  ret = ArmSystem();
+  ret = ArmOC();
   if( ret ){
     return ret;
   }
@@ -82,7 +82,7 @@ int SteerCtrl(void){
 
 /*Private アーム開閉*/
 static
-int ArmSystem(void){
+int ArmOC(void){
   static int prs_tri_s = 0;
   if(( __RC_ISPRESSED_L1(g_rc_data)) &&
      ( __RC_ISPRESSED_R1(g_rc_data)) &&
@@ -131,10 +131,12 @@ int suspensionSystem(void){
   int target;           /*目標となる制御値*/
   int gain;             /*アナログデータと掛け合わせて使うgain値*/
   unsigned int idx;     /*インデックス*/
-  const int incr = 500; /*Duty上昇時の変化量*/
-  const int decr = 500; /*Duty下降時の変化量*/
   int i;                /*カウンタ用*/
-
+  tc_const_t tcon;
+  
+  tcon.inc_con = 500;
+  tcon.dec_con = 500;
+  
   /*for each motor*/
   for( i = 0; i < num_of_motor; i++ ){
     gain = MD_GAIN;
@@ -186,7 +188,7 @@ int suspensionSystem(void){
     }else  {
       target = 0;
     }
-    TrapezoidCtrl(target, &( g_md_h[idx] ), incr, decr);
+    TrapezoidCtrl(target, &( g_md_h[idx] ), tcon);
   }
   return EXIT_SUCCESS;
 } /* suspensionSystem */
