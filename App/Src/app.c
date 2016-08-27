@@ -97,10 +97,11 @@ int suspensionSystem(void){
   int target;		/*目標となる制御値*/
   int gain;		/*アナログデータと掛け合わせて使うgain値*/
   unsigned int idx;	/*インデックス*/
-  const int incr = 500;	/*Duty上昇時の変化量*/
-  const int decr = 500;	/*Duty下降時の変化量*/
   int i;		/*カウンタ用*/
-
+  tc_const_t tcon;
+  tcon.inc_con = 500;
+  tcon.dec_con = 500;
+  
   /*for each motor*/
   for( i = 0; i < num_of_motor; i++ ){
     gain = MD_GAIN;
@@ -168,7 +169,7 @@ int suspensionSystem(void){
     else { 
       target = 0;
     }
-    TrapezoidCtrl(target, &(g_md_h[idx]), incr, decr);
+    TrapezoidCtrl(target, &(g_md_h[idx]), tcon);
   }
   return EXIT_SUCCESS;
 } /* suspensionSystem */
