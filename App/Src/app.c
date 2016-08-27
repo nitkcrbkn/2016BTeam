@@ -104,15 +104,15 @@ int ArmRotate(void){
   const int fakean = 8;
   if(( __RC_ISPRESSED_UP(g_rc_data)) &&
      !( __RC_ISPRESSED_DOWN(g_rc_data)) &&
-     ( MW_GPIORead(GPIOBID, GPIO_PIN_15) == 0 )){
-    g_md_h[ARM_MOVE_MD].mode = D_MMOD_FORWARD;
+     ( MW_GPIORead(GPIOBID, GPIO_PIN_15)) ){
+    g_md_h[ARM_MOVE_MD].mode = D_MMOD_BACKWARD;
     g_md_h[ARM_MOVE_MD].duty = fakean * MD_GAIN;
     return EXIT_SUCCESS;
   }
   if(( __RC_ISPRESSED_DOWN(g_rc_data)) &&
      !( __RC_ISPRESSED_UP(g_rc_data)) &&
-     ( MW_GPIORead(GPIOCID, GPIO_PIN_0) == 0 )){
-    g_md_h[ARM_MOVE_MD].mode = D_MMOD_BACKWARD;
+     ( MW_GPIORead(GPIOCID, GPIO_PIN_0)) ){
+    g_md_h[ARM_MOVE_MD].mode = D_MMOD_FORWARD;
     g_md_h[ARM_MOVE_MD].duty = fakean * MD_GAIN;
     return EXIT_SUCCESS;
   }
@@ -134,8 +134,8 @@ int suspensionSystem(void){
   int i;                /*カウンタ用*/
   tc_const_t tcon;
   
-  tcon.inc_con = 500;
-  tcon.dec_con = 500;
+  tcon.inc_con = 1500;
+  tcon.dec_con = 1500;
   
   /*for each motor*/
   for( i = 0; i < num_of_motor; i++ ){
