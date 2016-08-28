@@ -10,11 +10,22 @@
 int appTask(void);
 int appInit(void);
 
+/*上段のリミットスイッチは押されているか*/
+#define _SW_UPPER_LIMIT_GPIOxID GPIOBID
+#define _SW_UPPER_LIMIT_GPIOPIN GPIO_PIN_15
+#define _IS_SW_UPPER_LIMIT() (MW_GPIORead(_SW_UPPER_LIMIT_GPIOxID, _SW_UPPER_LIMIT_GPIOPIN))
+
+/*下段のリミットスイッチは押されているか*/
+#define _SW_LOWER_LIMIT_GPIOxID GPIOCID
+#define _SW_LOWER_LIMIT_GPIOPIN GPIO_PIN_0
+#define _IS_SW_LOWER_LIMIT() (MW_GPIORead(_SW_LOWER_LIMIT_GPIOxID, _SW_LOWER_LIMIT_GPIOPIN))
+
+/*アーム上下用モータのduty*/
 #define MD_ARM_DUTY 5000
 
 #define CENTRAL_THRESHOLD 4
 
-/*Reverse MD direction*/
+/*Reverse MD direction Flags*/
 #define _IS_REVERSE_R 0
 #define _IS_REVERSE_L 0
 

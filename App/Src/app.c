@@ -101,16 +101,18 @@ int ArmOC(void){
 /*Private アーム上下*/
 static
 int ArmRotate(void){
+  /*アーム上昇*/
   if(( __RC_ISPRESSED_UP(g_rc_data)) &&
      !( __RC_ISPRESSED_DOWN(g_rc_data)) &&
-     ( MW_GPIORead(GPIOBID, GPIO_PIN_15)) ){
+     !( _IS_SW_UPPER_LIMIT())){
     g_md_h[ARM_MOVE_MD].mode = D_MMOD_BACKWARD;
     g_md_h[ARM_MOVE_MD].duty = MD_ARM_DUTY;
     return EXIT_SUCCESS;
   }
+  /*アーム下降*/
   if(( __RC_ISPRESSED_DOWN(g_rc_data)) &&
      !( __RC_ISPRESSED_UP(g_rc_data)) &&
-     ( MW_GPIORead(GPIOCID, GPIO_PIN_0)) ){
+     !( _IS_SW_LOWER_LIMIT())){
     g_md_h[ARM_MOVE_MD].mode = D_MMOD_FORWARD;
     g_md_h[ARM_MOVE_MD].duty = MD_ARM_DUTY;
     return EXIT_SUCCESS;
@@ -132,10 +134,10 @@ int suspensionSystem(void){
   unsigned int idx;     /*インデックス*/
   int i;                /*カウンタ用*/
   tc_const_t tcon;
-  
+
   tcon.inc_con = 1500;
   tcon.dec_con = 1500;
-  
+
   /*for each motor*/
   for( i = 0; i < num_of_motor; i++ ){
     gain = MD_GAIN;
@@ -184,7 +186,7 @@ int suspensionSystem(void){
     /*これは中央か?±3程度余裕を持つ必要がある。*/
     if( abs(rc_analogdata) > CENTRAL_THRESHOLD ){
       target = rc_analogdata * gain;
-    }else  {
+    }else {
       target = 0;
     }
     TrapezoidCtrl(target, &( g_md_h[idx] ), tcon);
