@@ -156,9 +156,9 @@ int suspensionSystem(void){
         rc_analogdata = analog_max;
       }
 
-      if( _IS_REVERSE_R ){
-        rc_analogdata = -rc_analogdata;
-      }
+#if _IS_REVERSE_R
+      rc_analogdata = -rc_analogdata;
+#endif
       break;
 
     case DRIVE_MD_L:
@@ -173,9 +173,9 @@ int suspensionSystem(void){
         rc_analogdata = -analog_max;
       }
 
-      if( _IS_REVERSE_L ){
-        rc_analogdata = -rc_analogdata;
-      }
+#if _IS_REVERSE_L
+      rc_analogdata = -rc_analogdata;
+#endif
       break;
 
     default:
