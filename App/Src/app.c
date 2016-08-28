@@ -9,15 +9,15 @@
 #include "constManager.h"
 #include "trapezoid_ctrl.h"
 
-static
-int suspensionSystem(void);
-
 /*メモ
  * g_ab_h...ABのハンドラ
  * g_md_h...MDのハンドラ
  *
  * g_rc_data...RCのデータ
  */
+
+static
+int suspensionSystem(void);
 
 static
 int SteerCtrl(void);
@@ -27,6 +27,11 @@ int ArmOC(void);
 
 static
 int ArmRotate(void);
+
+tc_const_t g_tcon = {
+  1500,
+  1500
+};
 
 int appInit(void){
   message("msg", "Message");
@@ -127,33 +132,26 @@ int ArmRotate(void){
 static
 int suspensionSystem(void){
   const int num_of_motor = 2;/*モータの個数*/
-  const int analog_max = 13;
   int rc_analogdata;    /*コントローラから送られるアナログデータを格納*/
   int target;           /*目標となる制御値*/
-  int gain;             /*アナログデータと掛け合わせて使うgain値*/
   unsigned int idx;     /*インデックス*/
   int i;                /*カウンタ用*/
-  tc_const_t tcon;
-
-  tcon.inc_con = 1500;
-  tcon.dec_con = 1500;
 
   /*for each motor*/
   for( i = 0; i < num_of_motor; i++ ){
-    gain = MD_GAIN;
-    idx = i;
     /*それぞれの差分*/
     switch( i ){
-    case DRIVE_MD_R:
+    case 0:
       rc_analogdata = -( DD_RCGetRY(g_rc_data));
+      idx = DRIVE_MD_R;
       if(( __RC_ISPRESSED_R2(g_rc_data)) &&
          !( __RC_ISPRESSED_L2(g_rc_data))){
-        rc_analogdata = -analog_max;
+        rc_analogdata = -DD_RC_ANALOG_MAX;
       }
 
       if(( __RC_ISPRESSED_L2(g_rc_data)) &&
          !( __RC_ISPRESSED_R2(g_rc_data))){
-        rc_analogdata = analog_max;
+        rc_analogdata = DD_RC_ANALOG_MAX;
       }
 
 #if _IS_REVERSE_R
@@ -161,16 +159,17 @@ int suspensionSystem(void){
 #endif
       break;
 
-    case DRIVE_MD_L:
+    case 1:
+      idx = DRIVE_MD_L;
       rc_analogdata = -( DD_RCGetRY(g_rc_data));
       if(( __RC_ISPRESSED_R2(g_rc_data)) &&
          !( __RC_ISPRESSED_L2(g_rc_data))){
-        rc_analogdata = analog_max;
+        rc_analogdata = DD_RC_ANALOG_MAX;
       }
 
       if(( __RC_ISPRESSED_L2(g_rc_data)) &&
          !( __RC_ISPRESSED_R2(g_rc_data))){
-        rc_analogdata = -analog_max;
+        rc_analogdata = -DD_RC_ANALOG_MAX;
       }
 
 #if _IS_REVERSE_L
@@ -185,11 +184,11 @@ int suspensionSystem(void){
 
     /*これは中央か?±3程度余裕を持つ必要がある。*/
     if( abs(rc_analogdata) > CENTRAL_THRESHOLD ){
-      target = rc_analogdata * gain;
+      target = rc_analogdata * MD_GAIN;
     }else {
       target = 0;
     }
-    TrapezoidCtrl(target, &( g_md_h[idx] ), tcon);
+    TrapezoidCtrl(target, &( g_md_h[idx] ), g_tcon);
   }
   return EXIT_SUCCESS;
 } /* suspensionSystem */
