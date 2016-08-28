@@ -178,7 +178,7 @@ int suspensionSystem(void){
       break;
 
     default:
-      message("err", "real MDs are fewer than defined");
+      message("err", "real MDs are fewer than defined idx:%d", i);
       return EXIT_FAILURE;
     } /* switch */
 
