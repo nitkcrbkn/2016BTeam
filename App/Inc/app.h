@@ -22,6 +22,7 @@ int appInit(void);
 
 /*アーム上下用モータのduty*/
 #define MD_ARM_DUTY 5000
+#define MD_SUSPENSION_DUTY 5000
 
 #define CENTRAL_THRESHOLD 4
 

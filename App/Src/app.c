@@ -28,9 +28,9 @@ int ArmOC(void);
 static
 int ArmRotate(void);
 
-tc_const_t g_tcon = {
-  1500,
-  1500
+const tc_const_t g_tcon = {
+  500,
+  500
 };
 
 int appInit(void){
@@ -146,49 +146,57 @@ int suspensionSystem(void){
       idx = DRIVE_MD_R;
       if(( __RC_ISPRESSED_R2(g_rc_data)) &&
          !( __RC_ISPRESSED_L2(g_rc_data))){
-        rc_analogdata = -DD_RC_ANALOG_MAX;
+        target = -MD_SUSPENSION_DUTY;
       }
 
       if(( __RC_ISPRESSED_L2(g_rc_data)) &&
          !( __RC_ISPRESSED_R2(g_rc_data))){
-        rc_analogdata = DD_RC_ANALOG_MAX;
+        target = MD_SUSPENSION_DUTY;
+      }
+
+      /*これは中央か?±3程度余裕を持つ必要がある。*/
+      if( abs(rc_analogdata) > CENTRAL_THRESHOLD ){
+        target = rc_analogdata * MD_GAIN;
+      }else {
+        target = 0;
       }
 
 #if _IS_REVERSE_R
       rc_analogdata = -rc_analogdata;
 #endif
+      TrapezoidCtrl(target, &( g_md_h[idx] ), g_tcon);
       break;
 
     case 1:
       idx = DRIVE_MD_L;
       rc_analogdata = -( DD_RCGetRY(g_rc_data));
+
       if(( __RC_ISPRESSED_R2(g_rc_data)) &&
          !( __RC_ISPRESSED_L2(g_rc_data))){
-        rc_analogdata = DD_RC_ANALOG_MAX;
+        target = MD_SUSPENSION_DUTY;
       }
-
       if(( __RC_ISPRESSED_L2(g_rc_data)) &&
          !( __RC_ISPRESSED_R2(g_rc_data))){
-        rc_analogdata = -DD_RC_ANALOG_MAX;
+        target = -MD_SUSPENSION_DUTY;
+      }
+
+      /*これは中央か?±3程度余裕を持つ必要がある。*/
+      if( abs(rc_analogdata) > CENTRAL_THRESHOLD ){
+        target = rc_analogdata * MD_GAIN;
+      }else {
+        target = 0;
       }
 
 #if _IS_REVERSE_L
       rc_analogdata = -rc_analogdata;
 #endif
+      TrapezoidCtrl(target, &( g_md_h[idx] ), g_tcon);
       break;
 
     default:
       message("err", "real MDs are fewer than defined idx:%d", i);
       return EXIT_FAILURE;
     } /* switch */
-
-    /*これは中央か?±3程度余裕を持つ必要がある。*/
-    if( abs(rc_analogdata) > CENTRAL_THRESHOLD ){
-      target = rc_analogdata * MD_GAIN;
-    }else {
-      target = 0;
-    }
-    TrapezoidCtrl(target, &( g_md_h[idx] ), g_tcon);
   }
   return EXIT_SUCCESS;
 } /* suspensionSystem */
