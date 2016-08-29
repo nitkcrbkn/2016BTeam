@@ -139,38 +139,43 @@ int suspensionSystem(void){
 
   /*for each motor*/
   for( i = 0; i < num_of_motor; i++ ){
+    target = 0;
     /*それぞれの差分*/
     switch( i ){
     case 0:
-      rc_analogdata = -( DD_RCGetRY(g_rc_data));
       idx = DRIVE_MD_R;
-      if(( __RC_ISPRESSED_R2(g_rc_data)) &&
-         !( __RC_ISPRESSED_L2(g_rc_data))){
-        target = -MD_SUSPENSION_DUTY;
-      }
-
-      if(( __RC_ISPRESSED_L2(g_rc_data)) &&
-         !( __RC_ISPRESSED_R2(g_rc_data))){
-        target = MD_SUSPENSION_DUTY;
-      }
-
+      rc_analogdata = -( DD_RCGetRY(g_rc_data));
       /*これは中央か?±3程度余裕を持つ必要がある。*/
       if( abs(rc_analogdata) > CENTRAL_THRESHOLD ){
         target = rc_analogdata * MD_GAIN;
-      }else {
-        target = 0;
       }
-
 #if _IS_REVERSE_R
       rc_analogdata = -rc_analogdata;
 #endif
+      if(( __RC_ISPRESSED_R2(g_rc_data)) &&
+         !( __RC_ISPRESSED_L2(g_rc_data))){
+        target = -MD_SUSPENSION_DUTY;
+      }
+
+      if(( __RC_ISPRESSED_L2(g_rc_data)) &&
+         !( __RC_ISPRESSED_R2(g_rc_data))){
+        target = MD_SUSPENSION_DUTY;
+      }
+
       TrapezoidCtrl(target, &g_md_h[idx], &g_tcon);
       break;
-
+      
     case 1:
       idx = DRIVE_MD_L;
       rc_analogdata = -( DD_RCGetRY(g_rc_data));
-
+      
+#if _IS_REVERSE_L
+      rc_analogdata = -rc_analogdata;
+#endif
+      /*これは中央か?±3程度余裕を持つ必要がある。*/
+      if( abs(rc_analogdata) > CENTRAL_THRESHOLD ){
+        target = rc_analogdata * MD_GAIN;
+      }
       if(( __RC_ISPRESSED_R2(g_rc_data)) &&
          !( __RC_ISPRESSED_L2(g_rc_data))){
         target = MD_SUSPENSION_DUTY;
@@ -180,16 +185,6 @@ int suspensionSystem(void){
         target = -MD_SUSPENSION_DUTY;
       }
 
-      /*これは中央か?±3程度余裕を持つ必要がある。*/
-      if( abs(rc_analogdata) > CENTRAL_THRESHOLD ){
-        target = rc_analogdata * MD_GAIN;
-      }else {
-        target = 0;
-      }
-
-#if _IS_REVERSE_L
-      rc_analogdata = -rc_analogdata;
-#endif
       TrapezoidCtrl(target, &g_md_h[idx], &g_tcon);
       break;
 
