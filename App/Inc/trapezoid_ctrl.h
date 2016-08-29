@@ -6,24 +6,6 @@ typedef struct {
   int dec_con;	/*下降時の変化量*/
 } tc_const_t;
 
-void TrapezoidCtrl(int target_duty, DD_MDHand_t *handle, tc_const_t idval);
+void TrapezoidCtrl(int target_duty, DD_MDHand_t *handle, const tc_const_t *idval);
 
 #endif
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

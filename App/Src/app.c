@@ -164,7 +164,7 @@ int suspensionSystem(void){
 #if _IS_REVERSE_R
       rc_analogdata = -rc_analogdata;
 #endif
-      TrapezoidCtrl(target, &( g_md_h[idx] ), g_tcon);
+      TrapezoidCtrl(target, &g_md_h[idx], &g_tcon);
       break;
 
     case 1:
@@ -190,7 +190,7 @@ int suspensionSystem(void){
 #if _IS_REVERSE_L
       rc_analogdata = -rc_analogdata;
 #endif
-      TrapezoidCtrl(target, &( g_md_h[idx] ), g_tcon);
+      TrapezoidCtrl(target, &g_md_h[idx], &g_tcon);
       break;
 
     default:
