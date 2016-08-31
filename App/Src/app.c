@@ -82,6 +82,7 @@ int SteerCtrl(void){
   g_md_h[STEER_MD_R].duty = 0;
   g_md_h[STEER_MD_L].mode = D_MMOD_FREE;
   g_md_h[STEER_MD_L].duty = 0;
+  
   return EXIT_SUCCESS;
 }
 
@@ -128,7 +129,8 @@ int ArmRotate(void){
   return EXIT_SUCCESS;
 }
 
-/*Private MD制御*/
+
+/*プライベート 足回りシステム*/
 static
 int suspensionSystem(void){
   const int num_of_motor = 2;/*モータの個数*/

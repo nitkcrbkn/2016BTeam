@@ -4,9 +4,6 @@
 /*NO Device mode*/
 #define _NO_DEVICE 0
 
-#include "DD_RC.h"
-#include "DD_MD.h"
-
 int appTask(void);
 int appInit(void);
 
