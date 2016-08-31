@@ -4,149 +4,194 @@
 #include "SystemTaskManager.h"
 #include <stdlib.h>
 #include "message.h"
+#include "MW_GPIO.h"
 #include "MW_flash.h"
 #include "constManager.h"
-
-/*suspensionSystem*/
-static
-int suspensionSystem(void);
-/*ABSystem*/
-static 
-int ABSystem(void);
+#include "trapezoid_ctrl.h"
 
 /*メモ
- *g_ab_h...ABのハンドラ
- *g_md_h...MDのハンドラ
+ * g_ab_h...ABのハンドラ
+ * g_md_h...MDのハンドラ
  *
- *g_rc_data...RCのデータ
+ * g_rc_data...RCのデータ
  */
 
-#define WRITE_ADDR (const void*)(0x8000000+0x400*(128-1))/*128[KiB]*/
-flashError_t checkFlashWrite(void){
-  const char data[]="HelloWorld!!TestDatas!!!\n"
-    "however you like this microcomputer, you don`t be kind to this computer.";
-  return MW_flashWrite(data,WRITE_ADDR,sizeof(data));
-}
+static
+int suspensionSystem(void);
+
+static
+int SteerCtrl(void);
+
+static
+int ArmOC(void);
+
+static
+int ArmRotate(void);
+
+const tc_const_t g_tcon = {
+  500,
+  500
+};
 
 int appInit(void){
-  message("msg","hell");
-
-  /* switch(checkFlashWrite()){ */
-  /* case MW_FLASH_OK: */
-  /*   message("msg","FLASH WRITE TEST SUCCESS\n%s",(const char*)WRITE_ADDR); */
-  /*   break; */
-  /* case MW_FLASH_LOCK_FAILURE: */
-  /*   message("err","FLASH WRITE TEST LOCK FAILURE\n"); */
-  /*   break; */
-  /* case MW_FLASH_UNLOCK_FAILURE: */
-  /*   message("err","FLASH WRITE TEST UNLOCK FAILURE\n"); */
-  /*   break; */
-  /* case MW_FLASH_ERASE_VERIFY_FAILURE: */
-  /*   message("err","FLASH ERASE VERIFY FAILURE\n"); */
-  /*   break; */
-  /* case MW_FLASH_ERASE_FAILURE: */
-  /*   message("err","FLASH ERASE FAILURE\n"); */
-  /*   break; */
-  /* case MW_FLASH_WRITE_VERIFY_FAILURE: */
-  /*   message("err","FLASH WRITE TEST VERIFY FAILURE\n"); */
-  /*   break; */
-  /* case MW_FLASH_WRITE_FAILURE: */
-  /*   message("err","FLASH WRITE TEST FAILURE\n"); */
-  /*   break;         */
-  /* default: */
-  /*   message("err","FLASH WRITE TEST UNKNOWN FAILURE\n"); */
-  /*   break; */
-  /* } */
-  /* flush(); */
-
-  ad_init();
-
-  message("msg","plz confirm\n%d\n",g_adjust.rightadjust.value);
-
+  message("msg", "Message");
   /*GPIO の設定などでMW,GPIOではHALを叩く*/
   return EXIT_SUCCESS;
 }
 
 /*application tasks*/
 int appTask(void){
-  int ret=0;
-
-  if(__RC_ISPRESSED_R1(g_rc_data)&&__RC_ISPRESSED_R2(g_rc_data)&&
-     __RC_ISPRESSED_L1(g_rc_data)&&__RC_ISPRESSED_L2(g_rc_data)){
-    while(__RC_ISPRESSED_R1(g_rc_data)||__RC_ISPRESSED_R2(g_rc_data)||
-	  __RC_ISPRESSED_L1(g_rc_data)||__RC_ISPRESSED_L2(g_rc_data));
+  int ret = 0;
+  if( __RC_ISPRESSED_R1(g_rc_data) && __RC_ISPRESSED_R2(g_rc_data) &&
+      __RC_ISPRESSED_L1(g_rc_data) && __RC_ISPRESSED_L2(g_rc_data)){
+    while( __RC_ISPRESSED_R1(g_rc_data) || __RC_ISPRESSED_R2(g_rc_data) ||
+           __RC_ISPRESSED_L1(g_rc_data) || __RC_ISPRESSED_L2(g_rc_data)){
+    }
     ad_main();
   }
-  
+
   /*それぞれの機構ごとに処理をする*/
   /*途中必ず定数回で終了すること。*/
   ret = suspensionSystem();
-  if(ret){
+  if( ret ){
     return ret;
   }
 
-  ret = ABSystem();
-  if(ret){
+  ret = SteerCtrl();
+  if( ret ){
     return ret;
   }
-  
+
+  ret = ArmRotate();
+  if( ret ){
+    return ret;
+  }
+
+  ret = ArmOC();
+  if( ret ){
+    return ret;
+  }
+  return EXIT_SUCCESS;
+} /* appTask */
+
+/*Private ステア制御*/
+static
+int SteerCtrl(void){
+  /* T o D o */
+  g_md_h[STEER_MD_R].mode = D_MMOD_FREE;
+  g_md_h[STEER_MD_R].duty = 0;
+  g_md_h[STEER_MD_L].mode = D_MMOD_FREE;
+  g_md_h[STEER_MD_L].duty = 0;
   return EXIT_SUCCESS;
 }
 
-static 
-int ABSystem(void){
-
-  g_ab_h[0].dat = 0x00;
-  if(__RC_ISPRESSED_CIRCLE(g_rc_data)){
-    g_ab_h[0].dat |= AB0;
+/*Private アーム開閉*/
+static
+int ArmOC(void){
+  static int had_pressed_tri_s = 0;
+  if(( __RC_ISPRESSED_L1(g_rc_data)) &&
+     ( __RC_ISPRESSED_R1(g_rc_data)) &&
+     ( __RC_ISPRESSED_TRIANGLE(g_rc_data))){
+    if( had_pressed_tri_s == 0 ){
+      g_ab_h[DRIVER_AB].dat ^= ARM_OC_AB;
+      g_ab_h[DRIVER_VM].dat ^= STICK_BOX_VM;
+      had_pressed_tri_s = 1;
+    }
+  } else {
+    had_pressed_tri_s = 0;
   }
-  if(__RC_ISPRESSED_CROSS(g_rc_data)){
-    g_ab_h[0].dat |= AB1;
-  }
-
   return EXIT_SUCCESS;
 }
 
-/*プライベート 足回りシステム*/
+/*Private アーム上下*/
+static
+int ArmRotate(void){
+  /*アーム上昇*/
+  if(( __RC_ISPRESSED_UP(g_rc_data)) &&
+     !( __RC_ISPRESSED_DOWN(g_rc_data)) &&
+     !( _IS_SW_UPPER_LIMIT())){
+    g_md_h[ARM_MOVE_MD].mode = D_MMOD_BACKWARD;
+    g_md_h[ARM_MOVE_MD].duty = MD_ARM_DUTY;
+    return EXIT_SUCCESS;
+  }
+  /*アーム下降*/
+  if(( __RC_ISPRESSED_DOWN(g_rc_data)) &&
+     !( __RC_ISPRESSED_UP(g_rc_data)) &&
+     !( _IS_SW_LOWER_LIMIT())){
+    g_md_h[ARM_MOVE_MD].mode = D_MMOD_FORWARD;
+    g_md_h[ARM_MOVE_MD].duty = MD_ARM_DUTY;
+    return EXIT_SUCCESS;
+  }
+
+  g_md_h[ARM_MOVE_MD].duty = 0;
+  g_md_h[ARM_MOVE_MD].mode = D_MMOD_FREE;
+  return EXIT_SUCCESS;
+}
+
+/*Private MD制御*/
 static
 int suspensionSystem(void){
   const int num_of_motor = 2;/*モータの個数*/
-  int rc_analogdata;/*アナログデータ*/
-  unsigned int idx;/*インデックス*/
-  int i;
+  int rc_analogdata;    /*コントローラから送られるアナログデータを格納*/
+  int target;           /*目標となる制御値*/
+  unsigned int idx;     /*インデックス*/
+  int i;                /*カウンタ用*/
 
   /*for each motor*/
-  for(i=0;i<num_of_motor;i++){
+  for( i = 0; i < num_of_motor; i++ ){
+    target = 0;
     /*それぞれの差分*/
-    switch(i){
+    switch( i ){
     case 0:
-      rc_analogdata = DD_RCGetRY(g_rc_data);
-      idx = MECHA1_MD1;
+      idx = DRIVE_MD_R;
+      rc_analogdata = -( DD_RCGetRY(g_rc_data));
+#if _IS_REVERSE_R
+      rc_analogdata = -rc_analogdata;
+#endif
+      /*これは中央か?±3程度余裕を持つ必要がある。*/
+      if( abs(rc_analogdata) > CENTRAL_THRESHOLD ){
+        target = rc_analogdata * MD_GAIN;
+      }
+      if(( __RC_ISPRESSED_R2(g_rc_data)) &&
+         !( __RC_ISPRESSED_L2(g_rc_data))){
+        target = -MD_SUSPENSION_DUTY;
+      }
+
+      if(( __RC_ISPRESSED_L2(g_rc_data)) &&
+         !( __RC_ISPRESSED_R2(g_rc_data))){
+        target = MD_SUSPENSION_DUTY;
+      }
+
+      TrapezoidCtrl(target, &g_md_h[idx], &g_tcon);
       break;
+      
     case 1:
-      rc_analogdata = DD_RCGetLY(g_rc_data);
-      idx = MECHA1_MD2;
+      idx = DRIVE_MD_L;
+      rc_analogdata = -( DD_RCGetRY(g_rc_data));
+#if _IS_REVERSE_L
+      rc_analogdata = -rc_analogdata;
+#endif
+      /*これは中央か?±3程度余裕を持つ必要がある。*/
+      if( abs(rc_analogdata) > CENTRAL_THRESHOLD ){
+        target = rc_analogdata * MD_GAIN;
+      }
+      if(( __RC_ISPRESSED_R2(g_rc_data)) &&
+         !( __RC_ISPRESSED_L2(g_rc_data))){
+        target = MD_SUSPENSION_DUTY;
+      }
+      if(( __RC_ISPRESSED_L2(g_rc_data)) &&
+         !( __RC_ISPRESSED_R2(g_rc_data))){
+        target = -MD_SUSPENSION_DUTY;
+      }
+
+      TrapezoidCtrl(target, &g_md_h[idx], &g_tcon);
       break;
-    default:return EXIT_FAILURE;
-    }
 
-    /*これは中央か?±3程度余裕を持つ必要がある。*/
-    if(abs(rc_analogdata)<CENTRAL_THRESHOLD){
-      g_md_h[idx].mode = D_MMOD_FREE;
-      g_md_h[idx].duty = 0;
-    }
-    else{
-      if(rc_analogdata > 0){
-	/*前後の向き判定*/
-	g_md_h[idx].mode = D_MMOD_FORWARD;
-      }
-      else{
-	g_md_h[idx].mode = D_MMOD_BACKWARD;
-      }
-      /*絶対値を取りDutyに格納*/
-      g_md_h[idx].duty = abs(rc_analogdata) * MD_GAIN;
-    }
+    default:
+      message("err", "real MDs are fewer than defined idx:%d", i);
+      return EXIT_FAILURE;
+    } /* switch */
   }
-
   return EXIT_SUCCESS;
-}
+} /* suspensionSystem */
+
