@@ -145,13 +145,13 @@ int suspensionSystem(void){
     case 0:
       idx = DRIVE_MD_R;
       rc_analogdata = -( DD_RCGetRY(g_rc_data));
+#if _IS_REVERSE_R
+      rc_analogdata = -rc_analogdata;
+#endif
       /*これは中央か?±3程度余裕を持つ必要がある。*/
       if( abs(rc_analogdata) > CENTRAL_THRESHOLD ){
         target = rc_analogdata * MD_GAIN;
       }
-#if _IS_REVERSE_R
-      rc_analogdata = -rc_analogdata;
-#endif
       if(( __RC_ISPRESSED_R2(g_rc_data)) &&
          !( __RC_ISPRESSED_L2(g_rc_data))){
         target = -MD_SUSPENSION_DUTY;
@@ -168,7 +168,6 @@ int suspensionSystem(void){
     case 1:
       idx = DRIVE_MD_L;
       rc_analogdata = -( DD_RCGetRY(g_rc_data));
-      
 #if _IS_REVERSE_L
       rc_analogdata = -rc_analogdata;
 #endif
