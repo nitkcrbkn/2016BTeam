@@ -30,7 +30,9 @@ int appInit(void);
 #define DD_NUM_OF_MD 5
 #define DD_NUM_OF_AB 2
 #define DD_NUM_OF_SV 0
-
+#define DD_USE_ENCODER1 0
+#define DD_USE_ENCODER2 0
+  
 /*駆動部*/
 #define DRIVE_MD_R 0
 #define DRIVE_MD_L 1
