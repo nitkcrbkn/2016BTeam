@@ -10,7 +10,7 @@ DD_MDHand_t g_md_h[DD_NUM_OF_MD] = {
     0, /* default duty */
     D_MMOD_FREE, /* mode */
   },
-  { 0x11, 
+  { 0x11, /*駆動L*/
     0, 
     D_MMOD_FREE, 
   },

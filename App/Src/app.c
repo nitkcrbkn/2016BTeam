@@ -9,14 +9,6 @@
 #include "constManager.h"
 #include "trapezoid_ctrl.h"
 
-/*suspensionSystem*/
-static
-int suspensionSystem(void);
-
-/*ABSystem*/
-static
-int KickABSystem(void);
-
 /*メモ
  * g_ab_h...ABのハンドラ
  * g_md_h...MDのハンドラ
@@ -25,7 +17,24 @@ int KickABSystem(void);
  */
 
 static
+int suspensionSystem(void);
+
+static
+int RotationArm(void);
+
+static
+int ReelSystem(void);
+
+static
+int KickABSystem(void);
+
+static
 int ArmABSystem(void);
+
+const tc_const_t g_tcon = {
+  500,
+  500
+};
 
 int appInit(void){
   message("msg", "Message");
@@ -36,16 +45,26 @@ int appInit(void){
 /*application tasks*/
 int appTask(void){
   int ret = 0;
-  if(__RC_ISPRESSED_R1(g_rc_data)&&__RC_ISPRESSED_R2(g_rc_data)&&
-     __RC_ISPRESSED_L1(g_rc_data)&&__RC_ISPRESSED_L2(g_rc_data)){
-    while(__RC_ISPRESSED_R1(g_rc_data)||__RC_ISPRESSED_R2(g_rc_data)||
-	  __RC_ISPRESSED_L1(g_rc_data)||__RC_ISPRESSED_L2(g_rc_data));
+  if( __RC_ISPRESSED_R1(g_rc_data) && __RC_ISPRESSED_R2(g_rc_data) &&
+      __RC_ISPRESSED_L1(g_rc_data) && __RC_ISPRESSED_L2(g_rc_data)){
+    while( __RC_ISPRESSED_R1(g_rc_data) || __RC_ISPRESSED_R2(g_rc_data) ||
+           __RC_ISPRESSED_L1(g_rc_data) || __RC_ISPRESSED_L2(g_rc_data)){
+    }
     ad_main();
   }
-  
+
   /*それぞれの機構ごとに処理をする*/
   /*途中必ず定数回で終了すること。*/
   ret = suspensionSystem();
+  if( ret ){
+    return ret;
+  }
+  ret = RotationArm();
+  if( ret ){
+    return ret;
+  }
+  
+  ret = ReelSystem();
   if( ret ){
     return ret;
   }
@@ -59,117 +78,123 @@ int appTask(void){
   if( ret ){
     return ret;
   }
+  
+  return EXIT_SUCCESS;
+} /* appTask */
 
+
+static
+int RotationArm(){
+  if ( (__RC_ISPRESSED_L1(g_rc_data)) &&  
+       (__RC_ISPRESSED_R1(g_rc_data)) &&  
+       (__RC_ISPRESSED_TRIANGLE(g_rc_data)) ){
+    g_md_h[ARM_ROTATE_MD].mode = D_MMOD_FORWARD;
+    g_md_h[ARM_ROTATE_MD].duty = MD_ARM_ROTATE_DUTY;
+    return EXIT_SUCCESS;
+  }
+  if ( (__RC_ISPRESSED_L1(g_rc_data)) &&  
+       (__RC_ISPRESSED_R1(g_rc_data)) &&  
+       (__RC_ISPRESSED_CROSS(g_rc_data)) ){
+    g_md_h[ARM_ROTATE_MD].mode = D_MMOD_BACKWARD;
+    g_md_h[ARM_ROTATE_MD].duty = MD_ARM_ROTATE_DUTY;
+    return EXIT_SUCCESS;
+  }
+  g_md_h[ARM_ROTATE_MD].mode = D_MMOD_FREE;
+  g_md_h[ARM_ROTATE_MD].duty = 0;
+  return EXIT_SUCCESS;
+}
+
+static
+int ReelSystem(){
   return EXIT_SUCCESS;
 }
 
 /*プライベート キック用シリンダ*/
 static
 int KickABSystem(void){
-  static uint8_t prs_lrc_s = 0; 
+  static uint8_t had_pressed_lrc_s = 0; 
   if ( (__RC_ISPRESSED_L1(g_rc_data)) &&  
        (__RC_ISPRESSED_R1(g_rc_data)) &&  
        (__RC_ISPRESSED_CIRCLE(g_rc_data)) ) { 
-    if (prs_lrc_s == 0){ 
+    if (had_pressed_lrc_s == 0){ 
       g_ab_h[DRIVER_AB].dat ^= KICK_AB_R;
       g_ab_h[DRIVER_AB].dat ^= KICK_AB_L; 
-      prs_lrc_s = 1;
+      had_pressed_lrc_s = 1;
     } 
   } else { 
-    prs_lrc_s = 0; 
+    had_pressed_lrc_s = 0; 
   } 
   return EXIT_SUCCESS;
 }
 
-/*プライベート アーム展開*/
 static
-int ArmABSystem(void){
-  /*TODO*/
+int ArmABSystem(){
   return EXIT_SUCCESS;
 }
 
-/*プライベート MD制御*/
+/*プライベート 足回りシステム*/
 static
 int suspensionSystem(void){
-  const int num_of_motor = DD_NUM_OF_MD;/*モータの個数*/
-  const int analog_max = 15;
-  int rc_analogdata;	/*コントローラから送られるアナログデータを格納*/
-  int target;		/*目標となる制御値*/
-  int gain;		/*アナログデータと掛け合わせて使うgain値*/
-  unsigned int idx;	/*インデックス*/
-  int i;		/*カウンタ用*/
-  tc_const_t tcon;
-  tcon.inc_con = 500;
-  tcon.dec_con = 500;
-  
+  const int num_of_motor = 2;/*モータの個数*/
+  int rc_analogdata;    /*コントローラから送られるアナログデータを格納*/
+  int target;           /*目標となる制御値*/
+  unsigned int idx;     /*インデックス*/
+  int i;                /*カウンタ用*/
+
   /*for each motor*/
   for( i = 0; i < num_of_motor; i++ ){
-    gain = MD_GAIN;
-    idx = i;
+    target = 0;
     /*それぞれの差分*/
     switch( i ){
-    case DRIVE_MD_R:
-      rc_analogdata = -(DD_RCGetRY(g_rc_data));
-      if ( (__RC_ISPRESSED_R2(g_rc_data)) &&
-	  !(__RC_ISPRESSED_L2(g_rc_data)) )
-	rc_analogdata = -analog_max;
-      
-      if ( (__RC_ISPRESSED_L2(g_rc_data)) &&
-	  !(__RC_ISPRESSED_R2(g_rc_data)) )
-	rc_analogdata = analog_max;
-      
-      if (_IS_REVERSE_R)
-	rc_analogdata = -rc_analogdata;
-      break;
-     
-    case DRIVE_MD_L:
-      rc_analogdata = -(DD_RCGetRY(g_rc_data));
-      if ( (__RC_ISPRESSED_R2(g_rc_data)) &&
-	  !(__RC_ISPRESSED_L2(g_rc_data)) )
-	rc_analogdata = analog_max;
-      
-      if ( (__RC_ISPRESSED_L2(g_rc_data)) &&
-	  !(__RC_ISPRESSED_R2(g_rc_data)) )
-	rc_analogdata = -analog_max;
-      
-      if (_IS_REVERSE_L)
-	rc_analogdata = -rc_analogdata;
+    case 0:
+      idx = DRIVE_MD_R;
+      rc_analogdata = -( DD_RCGetRY(g_rc_data));
+#if _IS_REVERSE_R
+      rc_analogdata = -rc_analogdata;
+#endif
+      /*これは中央か?±3程度余裕を持つ必要がある。*/
+      if( abs(rc_analogdata) > CENTRAL_THRESHOLD ){
+        target = rc_analogdata * MD_GAIN;
+      }
+      if(( __RC_ISPRESSED_R2(g_rc_data)) &&
+         !( __RC_ISPRESSED_L2(g_rc_data))){
+        target = -MD_SUSPENSION_DUTY;
+      }
+
+      if(( __RC_ISPRESSED_L2(g_rc_data)) &&
+         !( __RC_ISPRESSED_R2(g_rc_data))){
+        target = MD_SUSPENSION_DUTY;
+      }
+
+      TrapezoidCtrl(target, &g_md_h[idx], &g_tcon);
       break;
       
-    case ROTATE_MECHA_MD:	
-      gain = MD_GAIN / 2;
-      rc_analogdata = 0;
-      if ( (__RC_ISPRESSED_L1(g_rc_data)) 	&&
-	   (__RC_ISPRESSED_R1(g_rc_data)) 	&&
-	   (__RC_ISPRESSED_CROSS(g_rc_data)) 	&&
-	  !(__RC_ISPRESSED_TRIANGLE(g_rc_data)) )
-	rc_analogdata = -analog_max;
-      
-      if ( (__RC_ISPRESSED_L1(g_rc_data)) 	&&
-	   (__RC_ISPRESSED_R1(g_rc_data)) 	&&
-	   (__RC_ISPRESSED_TRIANGLE(g_rc_data)) &&
-	  !(__RC_ISPRESSED_CROSS(g_rc_data)) )
-	rc_analogdata = analog_max;
+    case 1:
+      idx = DRIVE_MD_L;
+      rc_analogdata = -( DD_RCGetRY(g_rc_data));
+#if _IS_REVERSE_L
+      rc_analogdata = -rc_analogdata;
+#endif
+      /*これは中央か?±3程度余裕を持つ必要がある。*/
+      if( abs(rc_analogdata) > CENTRAL_THRESHOLD ){
+        target = rc_analogdata * MD_GAIN;
+      }
+      if(( __RC_ISPRESSED_R2(g_rc_data)) &&
+         !( __RC_ISPRESSED_L2(g_rc_data))){
+        target = MD_SUSPENSION_DUTY;
+      }
+      if(( __RC_ISPRESSED_L2(g_rc_data)) &&
+         !( __RC_ISPRESSED_R2(g_rc_data))){
+        target = -MD_SUSPENSION_DUTY;
+      }
+
+      TrapezoidCtrl(target, &g_md_h[idx], &g_tcon);
       break;
-      
-    case REEL_MECHA_MD:		/*リール機構用モータ*/
-      rc_analogdata = 0;
-      /*TODO*/
-      break;
-      
+
     default:
-       message("err", "real MDs are fewer than defined");
+      message("err", "real MDs are fewer than defined idx:%d", i);
       return EXIT_FAILURE;
-    }
-    
-    /*これは中央か?±3程度余裕を持つ必要がある。*/
-    if( abs(rc_analogdata) > CENTRAL_THRESHOLD ) {
-      target = rc_analogdata * gain;
-    }
-    else { 
-      target = 0;
-    }
-    TrapezoidCtrl(target, &(g_md_h[idx]), tcon);
+    } /* switch */
   }
   return EXIT_SUCCESS;
 } /* suspensionSystem */
