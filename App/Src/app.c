@@ -35,6 +35,7 @@ const tc_const_t g_tcon = {
 
 int appInit(void){
   message("msg", "Message");
+  ad_init();
   /*GPIO の設定などでMW,GPIOではHALを叩く*/
   return EXIT_SUCCESS;
 }
@@ -110,7 +111,7 @@ int ArmRotate(void){
   /*アーム上昇*/
   if(( __RC_ISPRESSED_UP(g_rc_data)) &&
      !( __RC_ISPRESSED_DOWN(g_rc_data)) &&
-     !( _IS_SW_UPPER_LIMIT())){
+      ( _SW_NOT_UPPER_LIMIT())){
     g_md_h[ARM_MOVE_MD].mode = D_MMOD_BACKWARD;
     g_md_h[ARM_MOVE_MD].duty = MD_ARM_DUTY;
     return EXIT_SUCCESS;
@@ -118,7 +119,7 @@ int ArmRotate(void){
   /*アーム下降*/
   if(( __RC_ISPRESSED_DOWN(g_rc_data)) &&
      !( __RC_ISPRESSED_UP(g_rc_data)) &&
-     !( _IS_SW_LOWER_LIMIT())){
+      ( _SW_NOT_LOWER_LIMIT())){
     g_md_h[ARM_MOVE_MD].mode = D_MMOD_FORWARD;
     g_md_h[ARM_MOVE_MD].duty = MD_ARM_DUTY;
     return EXIT_SUCCESS;
