@@ -126,7 +126,7 @@ int ArmRotate(void){
   }
 
   g_md_h[ARM_MOVE_MD].duty = 0;
-  g_md_h[ARM_MOVE_MD].mode = D_MMOD_FREE;
+  g_md_h[ARM_MOVE_MD].mode = D_MMOD_BRAKE;;
   return EXIT_SUCCESS;
 }
 
