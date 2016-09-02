@@ -84,17 +84,17 @@ int appTask(void){
 
 
 static
-int RotationArm(){
+int RotationArm(void){
   if ( (__RC_ISPRESSED_L1(g_rc_data)) &&  
        (__RC_ISPRESSED_R1(g_rc_data)) &&  
-       (__RC_ISPRESSED_TRIANGLE(g_rc_data)) ){
+       (__RC_ISPRESSED_RIGHT(g_rc_data)) ){
     g_md_h[ARM_ROTATE_MD].mode = D_MMOD_FORWARD;
     g_md_h[ARM_ROTATE_MD].duty = MD_ARM_ROTATE_DUTY;
     return EXIT_SUCCESS;
   }
   if ( (__RC_ISPRESSED_L1(g_rc_data)) &&  
        (__RC_ISPRESSED_R1(g_rc_data)) &&  
-       (__RC_ISPRESSED_CROSS(g_rc_data)) ){
+       (__RC_ISPRESSED_LEFT(g_rc_data)) ){
     g_md_h[ARM_ROTATE_MD].mode = D_MMOD_BACKWARD;
     g_md_h[ARM_ROTATE_MD].duty = MD_ARM_ROTATE_DUTY;
     return EXIT_SUCCESS;
@@ -105,7 +105,8 @@ int RotationArm(){
 }
 
 static
-int ReelSystem(){
+int ReelSystem(void){
+  
   return EXIT_SUCCESS;
 }
 
@@ -128,7 +129,7 @@ int KickABSystem(void){
 }
 
 static
-int ArmABSystem(){
+int ArmABSystem(void){
   return EXIT_SUCCESS;
 }
 
@@ -149,9 +150,7 @@ int suspensionSystem(void){
     case 0:
       idx = DRIVE_MD_R;
       rc_analogdata = -( DD_RCGetRY(g_rc_data));
-#if _IS_REVERSE_R
-      rc_analogdata = -rc_analogdata;
-#endif
+
       /*これは中央か?±3程度余裕を持つ必要がある。*/
       if( abs(rc_analogdata) > CENTRAL_THRESHOLD ){
         target = rc_analogdata * MD_GAIN;
@@ -165,16 +164,21 @@ int suspensionSystem(void){
          !( __RC_ISPRESSED_R2(g_rc_data))){
         target = MD_SUSPENSION_DUTY;
       }
-
+      if (target > MD_SUSPENSION_DUTY)
+	target = MD_SUSPENSION_DUTY;
+      if (target < -MD_SUSPENSION_DUTY)
+	target = -MD_SUSPENSION_DUTY;
+      
+#if _IS_REVERSE_R
+      target = -target;
+#endif
       TrapezoidCtrl(target, &g_md_h[idx], &g_tcon);
       break;
       
     case 1:
       idx = DRIVE_MD_L;
       rc_analogdata = -( DD_RCGetRY(g_rc_data));
-#if _IS_REVERSE_L
-      rc_analogdata = -rc_analogdata;
-#endif
+
       /*これは中央か?±3程度余裕を持つ必要がある。*/
       if( abs(rc_analogdata) > CENTRAL_THRESHOLD ){
         target = rc_analogdata * MD_GAIN;
@@ -187,10 +191,17 @@ int suspensionSystem(void){
          !( __RC_ISPRESSED_R2(g_rc_data))){
         target = -MD_SUSPENSION_DUTY;
       }
-
+      if (target > MD_SUSPENSION_DUTY)
+	target = MD_SUSPENSION_DUTY;
+      if (target < -MD_SUSPENSION_DUTY)
+	target = -MD_SUSPENSION_DUTY;
+      
+#if _IS_REVERSE_L
+      target = -target;
+#endif
       TrapezoidCtrl(target, &g_md_h[idx], &g_tcon);
       break;
-
+      
     default:
       message("err", "real MDs are fewer than defined idx:%d", i);
       return EXIT_FAILURE;
