@@ -82,7 +82,7 @@ int appTask(void){
   return EXIT_SUCCESS;
 } /* appTask */
 
-
+/*アーム回転*/ 
 static
 int RotationArm(void){
   if ( (__RC_ISPRESSED_L1(g_rc_data)) &&  
@@ -104,6 +104,7 @@ int RotationArm(void){
   return EXIT_SUCCESS;
 }
 
+/*リール機構*/
 static
 int ReelSystem(void){
   
@@ -128,6 +129,8 @@ int KickABSystem(void){
   return EXIT_SUCCESS;
 }
 
+
+/*アーム展開機構*/
 static
 int ArmABSystem(void){
   return EXIT_SUCCESS;
