@@ -3,12 +3,16 @@
 #include "DD_RCDefinition.h"
 #include "SystemTaskManager.h"
 #include <stdlib.h>
+#include "MW_GPIO.h"
+#include "MW_IWDG.h"
 #include "message.h"
 #include "MW_GPIO.h"
 #include "MW_flash.h"
 #include "constManager.h"
 #include "trapezoid_ctrl.h"
 
+static
+int LEDSystem(void);
 /*メモ
  * g_ab_h...ABのハンドラ
  * g_md_h...MDのハンドラ
@@ -22,8 +26,42 @@ int suspensionSystem(void);
 static
 int RotationArm(void);
 
+int appInit(void){
+  /* switch(checkFlashWrite()){ */
+  /* case MW_FLASH_OK: */
+  /*   message("msg","FLASH WRITE TEST SUCCESS\n%s",(const char*)WRITE_ADDR); */
+  /*   break; */
+  /* case MW_FLASH_LOCK_FAILURE: */
+  /*   message("err","FLASH WRITE TEST LOCK FAILURE\n"); */
+  /*   break; */
+  /* case MW_FLASH_UNLOCK_FAILURE: */
+  /*   message("err","FLASH WRITE TEST UNLOCK FAILURE\n"); */
+  /*   break; */
+  /* case MW_FLASH_ERASE_VERIFY_FAILURE: */
+  /*   message("err","FLASH ERASE VERIFY FAILURE\n"); */
+  /*   break; */
+  /* case MW_FLASH_ERASE_FAILURE: */
+  /*   message("err","FLASH ERASE FAILURE\n"); */
+  /*   break; */
+  /* case MW_FLASH_WRITE_VERIFY_FAILURE: */
+  /*   message("err","FLASH WRITE TEST VERIFY FAILURE\n"); */
+  /*   break; */
+  /* case MW_FLASH_WRITE_FAILURE: */
+  /*   message("err","FLASH WRITE TEST FAILURE\n"); */
+  /*   break;         */
+  /* default: */
+  /*   message("err","FLASH WRITE TEST UNKNOWN FAILURE\n"); */
+  /*   break; */
+  /* } */
+  /* flush(); */
+  message("msg","hell");
+
+  return EXIT_SUCCESS;
+}
+
 static
 int ReelSystem(void);
+
 
 static
 int KickABSystem(void);
@@ -36,20 +74,15 @@ const tc_const_t g_tcon = {
   500
 };
 
-int appInit(void){
-  message("msg", "Message");
-  /*GPIO の設定などでMW,GPIOではHALを叩く*/
-  return EXIT_SUCCESS;
-}
-
 /*application tasks*/
 int appTask(void){
-  int ret = 0;
-  if( __RC_ISPRESSED_R1(g_rc_data) && __RC_ISPRESSED_R2(g_rc_data) &&
-      __RC_ISPRESSED_L1(g_rc_data) && __RC_ISPRESSED_L2(g_rc_data)){
-    while( __RC_ISPRESSED_R1(g_rc_data) || __RC_ISPRESSED_R2(g_rc_data) ||
-           __RC_ISPRESSED_L1(g_rc_data) || __RC_ISPRESSED_L2(g_rc_data)){
-    }
+  int ret=0;
+
+  if(__RC_ISPRESSED_R1(g_rc_data)&&__RC_ISPRESSED_R2(g_rc_data)&&
+     __RC_ISPRESSED_L1(g_rc_data)&&__RC_ISPRESSED_L2(g_rc_data)){
+    while(__RC_ISPRESSED_R1(g_rc_data)||__RC_ISPRESSED_R2(g_rc_data)||
+	  __RC_ISPRESSED_L1(g_rc_data)||__RC_ISPRESSED_L2(g_rc_data))
+        SY_wait(10);
     ad_main();
   }
 
@@ -78,7 +111,26 @@ int appTask(void){
   if( ret ){
     return ret;
   }
-  
+
+  ret = LEDSystem();
+  if(ret){
+    return ret;
+  }
+     
+  return EXIT_SUCCESS;
+}
+
+static int LEDSystem(void){
+  if(__RC_ISPRESSED_UP(g_rc_data)){
+    g_led_mode = lmode_1;
+  }
+  if(__RC_ISPRESSED_DOWN(g_rc_data)){
+    g_led_mode = lmode_2;
+  }
+  if(__RC_ISPRESSED_RIGHT(g_rc_data)){
+    g_led_mode = lmode_3;
+  }
+
   return EXIT_SUCCESS;
 } /* appTask */
 
@@ -135,6 +187,7 @@ static
 int ArmABSystem(void){
   return EXIT_SUCCESS;
 }
+
 
 /*プライベート 足回りシステム*/
 static

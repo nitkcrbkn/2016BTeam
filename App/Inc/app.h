@@ -4,11 +4,16 @@
 /*NO Device mode*/
 #define _NO_DEVICE 0
 
-#include "DD_RC.h"
-#include "DD_MD.h"
-
 int appTask(void);
 int appInit(void);
+
+#define DD_USE_ENCODER1 0
+#define DD_USE_ENCODER2 0
+#define DD_NUM_OF_SV 0
+
+#include "DD_RC.h"
+#include "DD_MD.h"
+#include "DD_SV.h"
 
 #define CENTRAL_THRESHOLD 4
 
