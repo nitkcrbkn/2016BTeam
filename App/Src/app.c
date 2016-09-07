@@ -1,3 +1,4 @@
+
 #include "app.h"
 #include "DD_Gene.h"
 #include "DD_RCDefinition.h"
@@ -11,8 +12,6 @@
 #include "constManager.h"
 #include "trapezoid_ctrl.h"
 
-static
-int LEDSystem(void);
 /*メモ
  * g_ab_h...ABのハンドラ
  * g_md_h...MDのハンドラ
@@ -20,48 +19,22 @@ int LEDSystem(void);
  * g_rc_data...RCのデータ
  */
 
+const tc_const_t g_tcon = {
+  500,
+  500
+};
+
+static
+int LEDSystem(void);
+
 static
 int suspensionSystem(void);
 
 static
 int RotationArm(void);
 
-int appInit(void){
-  /* switch(checkFlashWrite()){ */
-  /* case MW_FLASH_OK: */
-  /*   message("msg","FLASH WRITE TEST SUCCESS\n%s",(const char*)WRITE_ADDR); */
-  /*   break; */
-  /* case MW_FLASH_LOCK_FAILURE: */
-  /*   message("err","FLASH WRITE TEST LOCK FAILURE\n"); */
-  /*   break; */
-  /* case MW_FLASH_UNLOCK_FAILURE: */
-  /*   message("err","FLASH WRITE TEST UNLOCK FAILURE\n"); */
-  /*   break; */
-  /* case MW_FLASH_ERASE_VERIFY_FAILURE: */
-  /*   message("err","FLASH ERASE VERIFY FAILURE\n"); */
-  /*   break; */
-  /* case MW_FLASH_ERASE_FAILURE: */
-  /*   message("err","FLASH ERASE FAILURE\n"); */
-  /*   break; */
-  /* case MW_FLASH_WRITE_VERIFY_FAILURE: */
-  /*   message("err","FLASH WRITE TEST VERIFY FAILURE\n"); */
-  /*   break; */
-  /* case MW_FLASH_WRITE_FAILURE: */
-  /*   message("err","FLASH WRITE TEST FAILURE\n"); */
-  /*   break;         */
-  /* default: */
-  /*   message("err","FLASH WRITE TEST UNKNOWN FAILURE\n"); */
-  /*   break; */
-  /* } */
-  /* flush(); */
-  message("msg","hell");
-
-  return EXIT_SUCCESS;
-}
-
 static
 int ReelSystem(void);
-
 
 static
 int KickABSystem(void);
@@ -69,10 +42,15 @@ int KickABSystem(void);
 static
 int ArmABSystem(void);
 
-const tc_const_t g_tcon = {
-  500,
-  500
-};
+static
+int ArmVMSystem(void);
+
+int appInit(void){
+  message("msg","hell");
+
+  ad_init();
+  return EXIT_SUCCESS;
+}
 
 /*application tasks*/
 int appTask(void){
@@ -112,6 +90,10 @@ int appTask(void){
     return ret;
   }
 
+  ret = ArmVMSystem();
+  if( ret ){
+    return ret;
+  }
   ret = LEDSystem();
   if(ret){
     return ret;
@@ -130,22 +112,22 @@ static int LEDSystem(void){
   if(__RC_ISPRESSED_RIGHT(g_rc_data)){
     g_led_mode = lmode_3;
   }
-
+  
   return EXIT_SUCCESS;
 } /* appTask */
 
 /*アーム回転*/ 
 static
 int RotationArm(void){
-  if ( (__RC_ISPRESSED_L1(g_rc_data)) &&  
-       (__RC_ISPRESSED_R1(g_rc_data)) &&  
+  if (!(__RC_ISPRESSED_L1(g_rc_data)) &&  
+      !(__RC_ISPRESSED_R1(g_rc_data)) &&  
        (__RC_ISPRESSED_RIGHT(g_rc_data)) ){
     g_md_h[ARM_ROTATE_MD].mode = D_MMOD_FORWARD;
     g_md_h[ARM_ROTATE_MD].duty = MD_ARM_ROTATE_DUTY;
     return EXIT_SUCCESS;
   }
-  if ( (__RC_ISPRESSED_L1(g_rc_data)) &&  
-       (__RC_ISPRESSED_R1(g_rc_data)) &&  
+  if (!(__RC_ISPRESSED_L1(g_rc_data)) &&  
+      !(__RC_ISPRESSED_R1(g_rc_data)) &&  
        (__RC_ISPRESSED_LEFT(g_rc_data)) ){
     g_md_h[ARM_ROTATE_MD].mode = D_MMOD_BACKWARD;
     g_md_h[ARM_ROTATE_MD].duty = MD_ARM_ROTATE_DUTY;
@@ -159,7 +141,20 @@ int RotationArm(void){
 /*リール機構*/
 static
 int ReelSystem(void){
-  
+  if (!(__RC_ISPRESSED_R1(g_rc_data)) &&
+      !(__RC_ISPRESSED_L1(g_rc_data)) &&
+       (__RC_ISPRESSED_UP(g_rc_data))){
+    g_md_h[REEL_MECHA_MD].mode = D_MMOD_FORWARD;
+    g_md_h[REEL_MECHA_MD].duty = MD_REEL_DUTY;
+  } else if ( (__RC_ISPRESSED_DOWN(g_rc_data)) &&
+	      !(__RC_ISPRESSED_L1(g_rc_data)) &&  
+	      !(__RC_ISPRESSED_R1(g_rc_data)) ){
+    g_md_h[REEL_MECHA_MD].mode = D_MMOD_FORWARD;
+    g_md_h[REEL_MECHA_MD].duty = MD_REEL_DUTY;
+  } else{
+    g_md_h[REEL_MECHA_MD].mode = D_MMOD_BRAKE;
+    g_md_h[REEL_MECHA_MD].duty = 0;
+  }
   return EXIT_SUCCESS;
 }
 
@@ -169,7 +164,7 @@ int KickABSystem(void){
   static uint8_t had_pressed_lrc_s = 0; 
   if ( (__RC_ISPRESSED_L1(g_rc_data)) &&  
        (__RC_ISPRESSED_R1(g_rc_data)) &&  
-       (__RC_ISPRESSED_CIRCLE(g_rc_data)) ) { 
+       (__RC_ISPRESSED_TRIANGLE(g_rc_data)) ) { 
     if (had_pressed_lrc_s == 0){ 
       g_ab_h[DRIVER_AB].dat ^= KICK_AB_R;
       g_ab_h[DRIVER_AB].dat ^= KICK_AB_L; 
@@ -185,11 +180,39 @@ int KickABSystem(void){
 /*アーム展開機構*/
 static
 int ArmABSystem(void){
+  static uint8_t had_pressed_lrc_s = 0; 
+  if ( (__RC_ISPRESSED_L1(g_rc_data)) &&  
+       (__RC_ISPRESSED_R1(g_rc_data)) &&  
+       (__RC_ISPRESSED_UP(g_rc_data)) ) { 
+    if (had_pressed_lrc_s == 0){ 
+      g_ab_h[DRIVER_AB].dat ^= ARM_AB_0;
+      g_ab_h[DRIVER_AB].dat ^= ARM_AB_1; 
+      had_pressed_lrc_s = 1;
+    } 
+  } else { 
+    had_pressed_lrc_s = 0; 
+  }
   return EXIT_SUCCESS;
 }
 
-
-/*プライベート 足回りシステム*/
+static
+int ArmVMSystem(void){
+  static uint8_t had_pressed_circle_s = 0; 
+  if ( (__RC_ISPRESSED_CIRCLE(g_rc_data)) &&
+      !(__RC_ISPRESSED_L1(g_rc_data)) &&  
+      !(__RC_ISPRESSED_R1(g_rc_data)) ){ 
+    if (had_pressed_circle_s == 0){ 
+      g_ab_h[DRIVER_VM].dat ^= ARM_AB_0;
+      g_ab_h[DRIVER_VM].dat ^= ARM_AB_1; 
+      had_pressed_circle_s = 1;
+    }
+  } else { 
+    had_pressed_circle_s = 0; 
+  }
+  return EXIT_SUCCESS;
+}
+  
+  /*プライベート 足回りシステム*/
 static
 int suspensionSystem(void){
   const int num_of_motor = 2;/*モータの個数*/

@@ -26,6 +26,7 @@ int appInit(void);
 
 #define MD_SUSPENSION_DUTY 5000
 #define MD_ARM_ROTATE_DUTY 5000
+#define MD_REEL_DUTY 5000
 
 /*駆動部*/
 #define DRIVE_MD_R 0
