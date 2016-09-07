@@ -3,6 +3,8 @@
 #include "DD_RCDefinition.h"
 #include "SystemTaskManager.h"
 #include <stdlib.h>
+#include "MW_GPIO.h"
+#include "MW_IWDG.h"
 #include "message.h"
 #include "MW_GPIO.h"
 #include "MW_flash.h"
@@ -42,12 +44,13 @@ int appInit(void){
 
 /*application tasks*/
 int appTask(void){
-  int ret = 0;
-  if( __RC_ISPRESSED_R1(g_rc_data) && __RC_ISPRESSED_R2(g_rc_data) &&
-      __RC_ISPRESSED_L1(g_rc_data) && __RC_ISPRESSED_L2(g_rc_data)){
-    while( __RC_ISPRESSED_R1(g_rc_data) || __RC_ISPRESSED_R2(g_rc_data) ||
-           __RC_ISPRESSED_L1(g_rc_data) || __RC_ISPRESSED_L2(g_rc_data)){
-    }
+  int ret=0;
+
+  if(__RC_ISPRESSED_R1(g_rc_data)&&__RC_ISPRESSED_R2(g_rc_data)&&
+     __RC_ISPRESSED_L1(g_rc_data)&&__RC_ISPRESSED_L2(g_rc_data)){
+    while(__RC_ISPRESSED_R1(g_rc_data)||__RC_ISPRESSED_R2(g_rc_data)||
+	  __RC_ISPRESSED_L1(g_rc_data)||__RC_ISPRESSED_L2(g_rc_data))
+        SY_wait(10);
     ad_main();
   }
 
