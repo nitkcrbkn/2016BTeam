@@ -78,11 +78,10 @@ int appTask(void){
 /*Private ステア制御*/
 static
 int SteerCtrl(void){
-  /* T o D o */
-  g_md_h[STEER_MD_R].mode = D_MMOD_FREE;
-  g_md_h[STEER_MD_R].duty = 0;
-  g_md_h[STEER_MD_L].mode = D_MMOD_FREE;
-  g_md_h[STEER_MD_L].duty = 0;
+  /* g_md_h[STEER_MD_R].mode = D_MMOD_FREE; */
+  /* g_md_h[STEER_MD_R].duty = 0; */
+  /* g_md_h[STEER_MD_L].mode = D_MMOD_FREE; */
+  /* g_md_h[STEER_MD_L].duty = 0; */
   
   return EXIT_SUCCESS;
 }

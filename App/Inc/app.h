@@ -27,7 +27,7 @@ int appInit(void);
 #define _IS_REVERSE_R 0
 #define _IS_REVERSE_L 0
 
-#define DD_NUM_OF_MD 5
+#define DD_NUM_OF_MD 3
 #define DD_NUM_OF_AB 2
 #define DD_NUM_OF_SV 0
 #define DD_USE_ENCODER1 0
@@ -37,11 +37,11 @@ int appInit(void);
 #define DRIVE_MD_R 0
 #define DRIVE_MD_L 1
 
-#define STEER_MD_R 2
-#define STEER_MD_L 3
+/* #define STEER_MD_R 2 */
+/* #define STEER_MD_L 3 */
 
 /*アーム上下用*/
-#define ARM_MOVE_MD 4
+#define ARM_MOVE_MD 2
 
 #define DRIVER_AB 0
 #define DRIVER_VM 1

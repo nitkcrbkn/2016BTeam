@@ -13,12 +13,12 @@ DD_MDHand_t g_md_h[DD_NUM_OF_MD] = {
   { 0x11,       /*駆動(Left)*/
     0,
     D_MMOD_FREE, },
-  { 0x12,       /*ステア用EC付(Right)*/
-    0,
-    D_MMOD_FREE, },
-  { 0x13,       /*ステア用EC付(Left)*/
-    0,
-    D_MMOD_FREE, },
+  /* { 0x12,       /\*ステア用EC付(Right)*\/ */
+  /*   0, */
+  /*   D_MMOD_FREE, }, */
+  /* { 0x13,       /\*ステア用EC付(Left)*\/ */
+  /*   0, */
+  /*   D_MMOD_FREE, }, */
   { 0x14,       /*アーム上下**/
     0,
     D_MMOD_FREE, },
