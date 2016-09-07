@@ -45,6 +45,9 @@ int ArmABSystem(void);
 static
 int ArmVMSystem(void);
 
+static
+int ClutchSystem(void);
+
 int appInit(void){
   message("msg","hell");
 
@@ -98,6 +101,10 @@ int appTask(void){
   if(ret){
     return ret;
   }
+  ret = ClutchSystem();
+  if (ret){
+    return ret;
+  }
      
   return EXIT_SUCCESS;
 }
@@ -112,7 +119,6 @@ static int LEDSystem(void){
   if(__RC_ISPRESSED_RIGHT(g_rc_data)){
     g_led_mode = lmode_3;
   }
-  
   return EXIT_SUCCESS;
 } /* appTask */
 
@@ -210,6 +216,20 @@ int ArmVMSystem(void){
     had_pressed_circle_s = 0; 
   }
   return EXIT_SUCCESS;
+}
+
+static
+int ClutchSystem(void){
+    static int had_pressed_sqare_s = 0;
+    if(__RC_ISPRESSED_SQARE(g_rc_data)){
+      if( had_pressed_sqare_s == 0 ){
+	g_ab_h[DRIVER_VM].dat ^= CLUTCH_SN;
+	had_pressed_sqare_s = 1;
+      }
+    } else {
+      had_pressed_sqare_s = 0;
+    }
+    return EXIT_SUCCESS;
 }
   
   /*プライベート 足回りシステム*/
