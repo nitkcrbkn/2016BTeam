@@ -24,7 +24,7 @@ int appInit(void);
 #define DD_NUM_OF_MD 4
 #define DD_NUM_OF_AB 2
 
-#define MD_SUSPENSION_DUTY 5000
+#define MD_SUSPENSION_DUTY 3000
 #define MD_ARM_ROTATE_DUTY 5000
 #define MD_REEL_DUTY 5000
 

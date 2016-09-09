@@ -1,4 +1,3 @@
-
 #include "app.h"
 #include "DD_Gene.h"
 #include "DD_RCDefinition.h"
@@ -20,8 +19,8 @@
  */
 
 const tc_const_t g_tcon = {
-  500,
-  500
+  .inc_con = 500,
+  .dec_con = 500
 };
 
 static
@@ -77,22 +76,18 @@ int appTask(void){
   if( ret ){
     return ret;
   }
-  
   ret = ReelSystem();
   if( ret ){
     return ret;
   }
-
   ret = KickABSystem();
   if( ret ){
     return ret;
   }
-
   ret = ArmABSystem();
   if( ret ){
     return ret;
   }
-
   ret = ArmVMSystem();
   if( ret ){
     return ret;
@@ -105,7 +100,7 @@ int appTask(void){
   if (ret){
     return ret;
   }
-     
+
   return EXIT_SUCCESS;
 }
 
@@ -122,18 +117,18 @@ static int LEDSystem(void){
   return EXIT_SUCCESS;
 } /* appTask */
 
-/*アーム回転*/ 
+/*アーム回転*/
 static
 int RotationArm(void){
-  if (!(__RC_ISPRESSED_L1(g_rc_data)) &&  
-      !(__RC_ISPRESSED_R1(g_rc_data)) &&  
+  if (!(__RC_ISPRESSED_L1(g_rc_data)) &&
+      !(__RC_ISPRESSED_R1(g_rc_data)) &&
        (__RC_ISPRESSED_RIGHT(g_rc_data)) ){
     g_md_h[ARM_ROTATE_MD].mode = D_MMOD_FORWARD;
     g_md_h[ARM_ROTATE_MD].duty = MD_ARM_ROTATE_DUTY;
     return EXIT_SUCCESS;
   }
-  if (!(__RC_ISPRESSED_L1(g_rc_data)) &&  
-      !(__RC_ISPRESSED_R1(g_rc_data)) &&  
+  if (!(__RC_ISPRESSED_L1(g_rc_data)) &&
+      !(__RC_ISPRESSED_R1(g_rc_data)) &&
        (__RC_ISPRESSED_LEFT(g_rc_data)) ){
     g_md_h[ARM_ROTATE_MD].mode = D_MMOD_BACKWARD;
     g_md_h[ARM_ROTATE_MD].duty = MD_ARM_ROTATE_DUTY;
@@ -153,7 +148,7 @@ int ReelSystem(void){
     g_md_h[REEL_MECHA_MD].mode = D_MMOD_FORWARD;
     g_md_h[REEL_MECHA_MD].duty = MD_REEL_DUTY;
   } else if ( (__RC_ISPRESSED_DOWN(g_rc_data)) &&
-	      !(__RC_ISPRESSED_L1(g_rc_data)) &&  
+	      !(__RC_ISPRESSED_L1(g_rc_data)) &&
 	      !(__RC_ISPRESSED_R1(g_rc_data)) ){
     g_md_h[REEL_MECHA_MD].mode = D_MMOD_FORWARD;
     g_md_h[REEL_MECHA_MD].duty = MD_REEL_DUTY;
@@ -167,18 +162,18 @@ int ReelSystem(void){
 /*プライベート キック用シリンダ*/
 static
 int KickABSystem(void){
-  static uint8_t had_pressed_lrc_s = 0; 
-  if ( (__RC_ISPRESSED_L1(g_rc_data)) &&  
-       (__RC_ISPRESSED_R1(g_rc_data)) &&  
-       (__RC_ISPRESSED_TRIANGLE(g_rc_data)) ) { 
-    if (had_pressed_lrc_s == 0){ 
+  static uint8_t had_pressed_lrc_s = 0;
+  if ( (__RC_ISPRESSED_L1(g_rc_data)) &&
+       (__RC_ISPRESSED_R1(g_rc_data)) &&
+       (__RC_ISPRESSED_TRIANGLE(g_rc_data)) ) {
+    if (had_pressed_lrc_s == 0){
       g_ab_h[DRIVER_AB].dat ^= KICK_AB_R;
-      g_ab_h[DRIVER_AB].dat ^= KICK_AB_L; 
+      g_ab_h[DRIVER_AB].dat ^= KICK_AB_L;
       had_pressed_lrc_s = 1;
-    } 
-  } else { 
-    had_pressed_lrc_s = 0; 
-  } 
+    }
+  } else {
+    had_pressed_lrc_s = 0;
+  }
   return EXIT_SUCCESS;
 }
 
@@ -186,38 +181,40 @@ int KickABSystem(void){
 /*アーム展開機構*/
 static
 int ArmABSystem(void){
-  static uint8_t had_pressed_lrc_s = 0; 
-  if ( (__RC_ISPRESSED_L1(g_rc_data)) &&  
-       (__RC_ISPRESSED_R1(g_rc_data)) &&  
-       (__RC_ISPRESSED_UP(g_rc_data)) ) { 
-    if (had_pressed_lrc_s == 0){ 
+  static uint8_t had_pressed_lrc_s = 0;
+  if ( (__RC_ISPRESSED_L1(g_rc_data)) &&
+       (__RC_ISPRESSED_R1(g_rc_data)) &&
+       (__RC_ISPRESSED_UP(g_rc_data)) ) {
+    if (had_pressed_lrc_s == 0){
       g_ab_h[DRIVER_AB].dat ^= ARM_AB_0;
-      g_ab_h[DRIVER_AB].dat ^= ARM_AB_1; 
+      g_ab_h[DRIVER_AB].dat ^= ARM_AB_1;
       had_pressed_lrc_s = 1;
-    } 
-  } else { 
-    had_pressed_lrc_s = 0; 
+    }
+  } else {
+    had_pressed_lrc_s = 0;
   }
   return EXIT_SUCCESS;
 }
 
+/*真空モータ*/
 static
 int ArmVMSystem(void){
-  static uint8_t had_pressed_circle_s = 0; 
+  static uint8_t had_pressed_circle_s = 0;
   if ( (__RC_ISPRESSED_CIRCLE(g_rc_data)) &&
-      !(__RC_ISPRESSED_L1(g_rc_data)) &&  
-      !(__RC_ISPRESSED_R1(g_rc_data)) ){ 
-    if (had_pressed_circle_s == 0){ 
+      !(__RC_ISPRESSED_L1(g_rc_data)) &&
+      !(__RC_ISPRESSED_R1(g_rc_data)) ){
+    if (had_pressed_circle_s == 0){
       g_ab_h[DRIVER_VM].dat ^= ARM_AB_0;
-      g_ab_h[DRIVER_VM].dat ^= ARM_AB_1; 
+      g_ab_h[DRIVER_VM].dat ^= ARM_AB_1;
       had_pressed_circle_s = 1;
     }
-  } else { 
-    had_pressed_circle_s = 0; 
+  } else {
+    had_pressed_circle_s = 0;
   }
   return EXIT_SUCCESS;
 }
 
+/*クラッチ機構*/
 static
 int ClutchSystem(void){
     static int had_pressed_sqare_s = 0;
@@ -231,8 +228,8 @@ int ClutchSystem(void){
     }
     return EXIT_SUCCESS;
 }
-  
-  /*プライベート 足回りシステム*/
+
+/*プライベート 足回りシステム*/
 static
 int suspensionSystem(void){
   const int num_of_motor = 2;/*モータの個数*/
@@ -254,26 +251,24 @@ int suspensionSystem(void){
       if( abs(rc_analogdata) > CENTRAL_THRESHOLD ){
         target = rc_analogdata * MD_GAIN;
       }
-      if(( __RC_ISPRESSED_R2(g_rc_data)) &&
-         !( __RC_ISPRESSED_L2(g_rc_data))){
+      if ( ( __RC_ISPRESSED_R2(g_rc_data)) &&
+	  !( __RC_ISPRESSED_L2(g_rc_data)) ){
         target = -MD_SUSPENSION_DUTY;
-      }
-
-      if(( __RC_ISPRESSED_L2(g_rc_data)) &&
-         !( __RC_ISPRESSED_R2(g_rc_data))){
+      } else if( ( __RC_ISPRESSED_L2(g_rc_data)) &&
+		!( __RC_ISPRESSED_R2(g_rc_data))){
         target = MD_SUSPENSION_DUTY;
       }
-      if (target > MD_SUSPENSION_DUTY)
+      if (target > MD_SUSPENSION_DUTY){
 	target = MD_SUSPENSION_DUTY;
-      if (target < -MD_SUSPENSION_DUTY)
+      } else if (target < -MD_SUSPENSION_DUTY){
 	target = -MD_SUSPENSION_DUTY;
-      
+      }
 #if _IS_REVERSE_R
       target = -target;
 #endif
       TrapezoidCtrl(target, &g_md_h[idx], &g_tcon);
       break;
-      
+
     case 1:
       idx = DRIVE_MD_L;
       rc_analogdata = -( DD_RCGetRY(g_rc_data));
@@ -285,22 +280,22 @@ int suspensionSystem(void){
       if(( __RC_ISPRESSED_R2(g_rc_data)) &&
          !( __RC_ISPRESSED_L2(g_rc_data))){
         target = MD_SUSPENSION_DUTY;
-      }
-      if(( __RC_ISPRESSED_L2(g_rc_data)) &&
-         !( __RC_ISPRESSED_R2(g_rc_data))){
+      } else if( ( __RC_ISPRESSED_L2(g_rc_data)) &&
+		!( __RC_ISPRESSED_R2(g_rc_data)) ){
         target = -MD_SUSPENSION_DUTY;
       }
-      if (target > MD_SUSPENSION_DUTY)
-	target = MD_SUSPENSION_DUTY;
-      if (target < -MD_SUSPENSION_DUTY)
-	target = -MD_SUSPENSION_DUTY;
       
+      if (target > MD_SUSPENSION_DUTY){
+	target = MD_SUSPENSION_DUTY;
+      } else if (target < -MD_SUSPENSION_DUTY){
+	target = -MD_SUSPENSION_DUTY;
+      }
 #if _IS_REVERSE_L
       target = -target;
 #endif
       TrapezoidCtrl(target, &g_md_h[idx], &g_tcon);
       break;
-      
+
     default:
       message("err", "real MDs are fewer than defined idx:%d", i);
       return EXIT_FAILURE;
@@ -308,4 +303,3 @@ int suspensionSystem(void){
   }
   return EXIT_SUCCESS;
 } /* suspensionSystem */
-
