@@ -85,7 +85,7 @@ int SteerCtrl(void){
   /* g_md_h[STEER_MD_R].duty = 0; */
   /* g_md_h[STEER_MD_L].mode = D_MMOD_FREE; */
   /* g_md_h[STEER_MD_L].duty = 0; */
-  
+
   return EXIT_SUCCESS;
 }
 
@@ -150,9 +150,6 @@ int suspensionSystem(void){
     case 0:
       idx = DRIVE_MD_R;
       rc_analogdata = -( DD_RCGetRY(g_rc_data));
-#if _IS_REVERSE_R
-      rc_analogdata = -rc_analogdata;
-#endif
       /*これは中央か?±3程度余裕を持つ必要がある。*/
       if( abs(rc_analogdata) > CENTRAL_THRESHOLD ){
         target = rc_analogdata * MD_GAIN;
@@ -167,15 +164,15 @@ int suspensionSystem(void){
         target = MD_SUSPENSION_DUTY;
       }
 
+      #if _IS_REVERSE_R
+            target = -target;
+      #endif
       TrapezoidCtrl(target, &g_md_h[idx], &g_tcon);
       break;
-      
+
     case 1:
       idx = DRIVE_MD_L;
       rc_analogdata = -( DD_RCGetRY(g_rc_data));
-#if _IS_REVERSE_L
-      rc_analogdata = -rc_analogdata;
-#endif
       /*これは中央か?±3程度余裕を持つ必要がある。*/
       if( abs(rc_analogdata) > CENTRAL_THRESHOLD ){
         target = rc_analogdata * MD_GAIN;
@@ -189,6 +186,9 @@ int suspensionSystem(void){
         target = -MD_SUSPENSION_DUTY;
       }
 
+      #if _IS_REVERSE_L
+            target = -target;
+      #endif
       TrapezoidCtrl(target, &g_md_h[idx], &g_tcon);
       break;
 
@@ -199,4 +199,3 @@ int suspensionSystem(void){
   }
   return EXIT_SUCCESS;
 } /* suspensionSystem */
-

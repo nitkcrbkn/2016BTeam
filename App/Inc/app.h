@@ -2,7 +2,7 @@
 #define __APP_H
 
 /*NO Device mode*/
-#define _NO_DEVICE 1
+#define _NO_DEVICE 0
 
 int appTask(void);
 int appInit(void);
@@ -25,14 +25,14 @@ int appInit(void);
 
 /*Reverse MD direction Flags*/
 #define _IS_REVERSE_R 0
-#define _IS_REVERSE_L 0
+#define _IS_REVERSE_L 1
 
 #define DD_NUM_OF_MD 3
 #define DD_NUM_OF_AB 2
 #define DD_NUM_OF_SV 0
 #define DD_USE_ENCODER1 0
 #define DD_USE_ENCODER2 0
-  
+
 /*駆動部*/
 #define DRIVE_MD_R 0
 #define DRIVE_MD_L 1
