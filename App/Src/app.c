@@ -31,7 +31,7 @@ static
 int ArmRotate(void);
 
 const tc_const_t g_tcon = {
-  500,
+  200,
   500
 };
 
@@ -98,7 +98,6 @@ int ArmOC(void){
      ( __RC_ISPRESSED_TRIANGLE(g_rc_data))){
     if( had_pressed_tri_s == 0 ){
       g_ab_h[DRIVER_AB].dat ^= ARM_OC_AB;
-      g_ab_h[DRIVER_VM].dat ^= STICK_BOX_VM;
       had_pressed_tri_s = 1;
     }
   } else {

@@ -30,8 +30,6 @@ DD_ABHand_t g_ab_h[DD_NUM_OF_AB] = {
   { 0x20, /* address (シリンダ)*/
     0x00, /* data */
   },
-  { 0x30,       /*真空モータ*/
-    0x00, },
 };
 #endif
 #if DD_NUM_OF_SV

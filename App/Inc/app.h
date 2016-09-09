@@ -18,8 +18,8 @@ int appInit(void);
 #define _SW_NOT_LOWER_LIMIT() (MW_GPIORead(_SW_LOWER_LIMIT_GPIOxID, _SW_LOWER_LIMIT_GPIOPIN))
 
 /*アーム上下用モータのduty*/
-#define MD_ARM_DUTY 5000
-#define MD_SUSPENSION_DUTY 5000
+#define MD_ARM_DUTY 4000
+#define MD_SUSPENSION_DUTY 2000
 
 #define CENTRAL_THRESHOLD 4
 
@@ -28,7 +28,7 @@ int appInit(void);
 #define _IS_REVERSE_L 1
 
 #define DD_NUM_OF_MD 3
-#define DD_NUM_OF_AB 2
+#define DD_NUM_OF_AB 1
 #define DD_NUM_OF_SV 0
 #define DD_USE_ENCODER1 0
 #define DD_USE_ENCODER2 0
@@ -44,13 +44,9 @@ int appInit(void);
 #define ARM_MOVE_MD 2
 
 #define DRIVER_AB 0
-#define DRIVER_VM 1
 
 /*アーム開閉用*/
 #define ARM_OC_AB (1<<0)
-
-/*箱吸着用真空モータ*/
-#define STICK_BOX_VM (1<<0)
 
 #define MD_GAIN ( DD_MD_MAX_DUTY / DD_RC_ANALOG_MAX )
 
