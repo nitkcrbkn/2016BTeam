@@ -150,7 +150,7 @@ int ReelSystem(void){
   } else if ( (__RC_ISPRESSED_DOWN(g_rc_data)) &&
 	      !(__RC_ISPRESSED_L1(g_rc_data)) &&
 	      !(__RC_ISPRESSED_R1(g_rc_data)) ){
-    g_md_h[REEL_MECHA_MD].mode = D_MMOD_FORWARD;
+    g_md_h[REEL_MECHA_MD].mode = D_MMOD_BACKWARD;
     g_md_h[REEL_MECHA_MD].duty = MD_REEL_DUTY;
   } else{
     g_md_h[REEL_MECHA_MD].mode = D_MMOD_BRAKE;
@@ -185,7 +185,7 @@ int ArmABSystem(void){
   if ( (__RC_ISPRESSED_L1(g_rc_data)) &&
        (__RC_ISPRESSED_R1(g_rc_data)) &&
        (__RC_ISPRESSED_UP(g_rc_data)) ) {
-    if (had_pressed_lrc_s == 0){
+    if ((had_pressed_lrc_s == 0) && (g_ab_h[DRIVER_VM].dat & CLUTCH_SN)){
       g_ab_h[DRIVER_AB].dat ^= ARM_AB_0;
       g_ab_h[DRIVER_AB].dat ^= ARM_AB_1;
       had_pressed_lrc_s = 1;
@@ -204,8 +204,8 @@ int ArmVMSystem(void){
       !(__RC_ISPRESSED_L1(g_rc_data)) &&
       !(__RC_ISPRESSED_R1(g_rc_data)) ){
     if (had_pressed_circle_s == 0){
-      g_ab_h[DRIVER_VM].dat ^= ARM_AB_0;
-      g_ab_h[DRIVER_VM].dat ^= ARM_AB_1;
+      g_ab_h[DRIVER_VM].dat ^= STICK_BOX_VM_0;
+      g_ab_h[DRIVER_VM].dat ^= STICK_BOX_VM_1;
       had_pressed_circle_s = 1;
     }
   } else {
@@ -284,7 +284,7 @@ int suspensionSystem(void){
 		!( __RC_ISPRESSED_R2(g_rc_data)) ){
         target = -MD_SUSPENSION_DUTY;
       }
-      
+
       if (target > MD_SUSPENSION_DUTY){
 	target = MD_SUSPENSION_DUTY;
       } else if (target < -MD_SUSPENSION_DUTY){
