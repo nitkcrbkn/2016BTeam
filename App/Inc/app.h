@@ -18,7 +18,7 @@ int appInit(void);
 #define _SW_NOT_LOWER_LIMIT() (MW_GPIORead(_SW_LOWER_LIMIT_GPIOxID, _SW_LOWER_LIMIT_GPIOPIN))
 
 /*アーム上下用モータのduty*/
-#define MD_ARM_DUTY 4000
+#define MD_ARM_DUTY 9500
 #define MD_SUSPENSION_DUTY 2000
 
 #define CENTRAL_THRESHOLD 4
