@@ -6,20 +6,31 @@
 #if DD_NUM_OF_MD
 /*MD Definition*/
 DD_MDHand_t g_md_h[DD_NUM_OF_MD] = {
-  { .add  = 0x10, /* address */
+  { .add = 0x10, /* address 駆動(Right)*/
     .duty = 0, /* default duty */
     .mode = D_MMOD_FREE, /* mode */
   },
-  { .add  = 0x10, /* address */
-    .duty = 0, /* default duty */
-    .mode = D_MMOD_FREE, /* mode */
+  { .add = 0x11,       /*駆動(Left)*/
+    .duty = 0,
+    .mode = D_MMOD_FREE,
+  },
+  { .add = 0x12,       /*アーム上下**/
+    .duty = 0,
+    .mode = D_MMOD_FREE,
+  },
+  { .add = 0x13,       /*腰の回転機構*/
+    .duty = 0,
+    .mode = D_MMOD_FREE,
   },
 };
 #endif
 #if DD_NUM_OF_AB
 /*AB Definition*/
 DD_ABHand_t g_ab_h[DD_NUM_OF_AB] = {
-  { .add = 0x11, /* address */
+  { .add = 0x20, /* address (シリンダ)*/
+    .dat = 0x00, /* data */
+  },
+  { .add = 0x30, /* address (真空モータ)*/
     .dat = 0x00, /* data */
   },
 };
