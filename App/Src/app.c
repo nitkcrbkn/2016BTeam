@@ -111,16 +111,12 @@ static
 int ArmRotate(void){
   /*アーム上昇*/
   if(( __RC_ISPRESSED_UP(g_rc_data)) &&
-     !( __RC_ISPRESSED_DOWN(g_rc_data)) &&
      ( _SW_NOT_UPPER_LIMIT())){
     g_md_h[ARM_MOVE_MD].mode = D_MMOD_BACKWARD;
     g_md_h[ARM_MOVE_MD].duty = MD_ARM_DUTY;
     return EXIT_SUCCESS;
-  }
-  /*アーム下降*/
-  if(( __RC_ISPRESSED_DOWN(g_rc_data)) &&
-     !( __RC_ISPRESSED_UP(g_rc_data)) &&
-     ( _SW_NOT_LOWER_LIMIT())){
+  } else if( ( __RC_ISPRESSED_DOWN(g_rc_data)) &&
+             ( _SW_NOT_LOWER_LIMIT()) ){
     g_md_h[ARM_MOVE_MD].mode = D_MMOD_FORWARD;
     g_md_h[ARM_MOVE_MD].duty = MD_ARM_DUTY;
     return EXIT_SUCCESS;
@@ -166,26 +162,15 @@ int suspensionSystem(void){
       if( abs(rc_analogdata) > CENTRAL_THRESHOLD ){
         target = rc_analogdata * MD_GAIN;
       }
-      if(( __RC_ISPRESSED_R2(g_rc_data)) &&
-         !( __RC_ISPRESSED_L2(g_rc_data))){
+      if( __RC_ISPRESSED_R2(g_rc_data)){
         target = -MD_SUSPENSION_DUTY;
-      }
-
-      if(( __RC_ISPRESSED_L2(g_rc_data)) &&
-         !( __RC_ISPRESSED_R2(g_rc_data))){
+      } else if( __RC_ISPRESSED_L2(g_rc_data)){
         target = MD_SUSPENSION_DUTY;
       }
 
       #if _IS_REVERSE_R
       target = -target;
       #endif
-      if( target > MD_SUSPENSION_DUTY ){
-        target = MD_SUSPENSION_DUTY;
-      }
-      if( target < -MD_SUSPENSION_DUTY ){
-        target = -MD_SUSPENSION_DUTY;
-      }
-      TrapezoidCtrl(target, &g_md_h[idx], &g_tcon);
       break;
 
     case 1:
@@ -195,32 +180,30 @@ int suspensionSystem(void){
       if( abs(rc_analogdata) > CENTRAL_THRESHOLD ){
         target = rc_analogdata * MD_GAIN;
       }
-      if(( __RC_ISPRESSED_R2(g_rc_data)) &&
-         !( __RC_ISPRESSED_L2(g_rc_data))){
+      if( __RC_ISPRESSED_R2(g_rc_data)){
         target = MD_SUSPENSION_DUTY;
-      }
-      if(( __RC_ISPRESSED_L2(g_rc_data)) &&
-         !( __RC_ISPRESSED_R2(g_rc_data))){
+      }else if( ( __RC_ISPRESSED_L2(g_rc_data)) ){
         target = -MD_SUSPENSION_DUTY;
       }
 
       #if _IS_REVERSE_L
       target = -target;
       #endif
-      if( target > MD_SUSPENSION_DUTY ){
-        target = MD_SUSPENSION_DUTY;
-      }
-      if( target < -MD_SUSPENSION_DUTY ){
-        target = -MD_SUSPENSION_DUTY;
-      }
-      TrapezoidCtrl(target, &g_md_h[idx], &g_tcon);
       break;
 
     default:
       message("err", "real MDs are fewer than defined idx:%d", i);
       return EXIT_FAILURE;
     } /* switch */
+
+    if( target > MD_SUSPENSION_DUTY ){
+      target = MD_SUSPENSION_DUTY;
+    }
+    if( target < -MD_SUSPENSION_DUTY ){
+      target = -MD_SUSPENSION_DUTY;
+    }
+    TrapezoidCtrl(target, &g_md_h[idx], &g_tcon);
+
   }
   return EXIT_SUCCESS;
 } /* suspensionSystem */
-
