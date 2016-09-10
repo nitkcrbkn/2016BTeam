@@ -10,12 +10,12 @@ int appInit(void);
 /*上段のリミットスイッチは押されているか*/
 #define _SW_UPPER_LIMIT_GPIOxID GPIOBID
 #define _SW_UPPER_LIMIT_GPIOPIN GPIO_PIN_15
-#define _SW_NOT_UPPER_LIMIT() (MW_GPIORead(_SW_UPPER_LIMIT_GPIOxID, _SW_UPPER_LIMIT_GPIOPIN))
+#define _SW_NOT_UPPER_LIMIT() ( MW_GPIORead(_SW_UPPER_LIMIT_GPIOxID, _SW_UPPER_LIMIT_GPIOPIN))
 
 /*下段のリミットスイッチは押されているか*/
 #define _SW_LOWER_LIMIT_GPIOxID GPIOCID
 #define _SW_LOWER_LIMIT_GPIOPIN GPIO_PIN_0
-#define _SW_NOT_LOWER_LIMIT() (MW_GPIORead(_SW_LOWER_LIMIT_GPIOxID, _SW_LOWER_LIMIT_GPIOPIN))
+#define _SW_NOT_LOWER_LIMIT() ( MW_GPIORead(_SW_LOWER_LIMIT_GPIOxID, _SW_LOWER_LIMIT_GPIOPIN))
 
 /*アーム上下用モータのduty*/
 #define MD_ARM_DUTY 9500
@@ -44,15 +44,15 @@ int appInit(void);
 
 #define DRIVER_AB 0
 /*キック用シリンダ*/
-#define KICK_AB_R (1<<0)
-#define KICK_AB_L (1<<1)
+#define KICK_AB_R ( 1 << 0 )
+#define KICK_AB_L ( 1 << 1 )
 /*アーム開閉用*/
-#define ARM_OC_AB (1<<2)
+#define ARM_OC_AB ( 1 << 2 )
 /*展開機構*/
-#define EXPAND_MECHA_AB (1<<3)
+#define EXPAND_MECHA_AB ( 1 << 3 )
 
 #define DRIVER_VM 1
-#define ARM_OC_VM (1<<0)
+#define ARM_OC_VM ( 1 << 0 )
 
 #define MD_GAIN ( DD_MD_MAX_DUTY / DD_RC_ANALOG_MAX )
 

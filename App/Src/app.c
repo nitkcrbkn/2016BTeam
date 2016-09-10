@@ -47,13 +47,14 @@ int appInit(void){
 
 /*application tasks*/
 int appTask(void){
-  int ret=0;
+  int ret = 0;
 
-  if(__RC_ISPRESSED_R1(g_rc_data)&&__RC_ISPRESSED_R2(g_rc_data)&&
-     __RC_ISPRESSED_L1(g_rc_data)&&__RC_ISPRESSED_L2(g_rc_data)){
-    while(__RC_ISPRESSED_R1(g_rc_data)||__RC_ISPRESSED_R2(g_rc_data)||
-	  __RC_ISPRESSED_L1(g_rc_data)||__RC_ISPRESSED_L2(g_rc_data))
-        SY_wait(10);
+  if( __RC_ISPRESSED_R1(g_rc_data) && __RC_ISPRESSED_R2(g_rc_data) &&
+      __RC_ISPRESSED_L1(g_rc_data) && __RC_ISPRESSED_L2(g_rc_data)){
+    while( __RC_ISPRESSED_R1(g_rc_data) || __RC_ISPRESSED_R2(g_rc_data) ||
+           __RC_ISPRESSED_L1(g_rc_data) || __RC_ISPRESSED_L2(g_rc_data)){
+      SY_wait(10);
+    }
     ad_main();
   }
 
@@ -111,7 +112,7 @@ int ArmRotate(void){
   /*アーム上昇*/
   if(( __RC_ISPRESSED_UP(g_rc_data)) &&
      !( __RC_ISPRESSED_DOWN(g_rc_data)) &&
-      ( _SW_NOT_UPPER_LIMIT())){
+     ( _SW_NOT_UPPER_LIMIT())){
     g_md_h[ARM_MOVE_MD].mode = D_MMOD_BACKWARD;
     g_md_h[ARM_MOVE_MD].duty = MD_ARM_DUTY;
     return EXIT_SUCCESS;
@@ -119,16 +120,17 @@ int ArmRotate(void){
   /*アーム下降*/
   if(( __RC_ISPRESSED_DOWN(g_rc_data)) &&
      !( __RC_ISPRESSED_UP(g_rc_data)) &&
-      ( _SW_NOT_LOWER_LIMIT())){
+     ( _SW_NOT_LOWER_LIMIT())){
     g_md_h[ARM_MOVE_MD].mode = D_MMOD_FORWARD;
     g_md_h[ARM_MOVE_MD].duty = MD_ARM_DUTY;
     return EXIT_SUCCESS;
   }
 
   g_md_h[ARM_MOVE_MD].duty = 0;
-  g_md_h[ARM_MOVE_MD].mode = D_MMOD_BRAKE;;
+  g_md_h[ARM_MOVE_MD].mode = D_MMOD_BRAKE;
   return EXIT_SUCCESS;
 }
+
 /*腰回転機構*/
 static
 int WaistRotate(void){
@@ -175,12 +177,14 @@ int suspensionSystem(void){
       }
 
       #if _IS_REVERSE_R
-            target = -target;
+      target = -target;
       #endif
-      if (target > MD_SUSPENSION_DUTY)
+      if( target > MD_SUSPENSION_DUTY ){
         target = MD_SUSPENSION_DUTY;
-      if (target < -MD_SUSPENSION_DUTY)
+      }
+      if( target < -MD_SUSPENSION_DUTY ){
         target = -MD_SUSPENSION_DUTY;
+      }
       TrapezoidCtrl(target, &g_md_h[idx], &g_tcon);
       break;
 
@@ -201,12 +205,14 @@ int suspensionSystem(void){
       }
 
       #if _IS_REVERSE_L
-            target = -target;
+      target = -target;
       #endif
-      if (target > MD_SUSPENSION_DUTY)
+      if( target > MD_SUSPENSION_DUTY ){
         target = MD_SUSPENSION_DUTY;
-      if (target < -MD_SUSPENSION_DUTY)
+      }
+      if( target < -MD_SUSPENSION_DUTY ){
         target = -MD_SUSPENSION_DUTY;
+      }
       TrapezoidCtrl(target, &g_md_h[idx], &g_tcon);
       break;
 
@@ -217,3 +223,4 @@ int suspensionSystem(void){
   }
   return EXIT_SUCCESS;
 } /* suspensionSystem */
+
