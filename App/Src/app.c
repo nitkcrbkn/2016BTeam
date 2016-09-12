@@ -169,7 +169,7 @@ int suspensionSystem(void){
       }
 
       #if _IS_REVERSE_R
-      target = -target;
+        target = -target;
       #endif
       break;
 
@@ -187,7 +187,7 @@ int suspensionSystem(void){
       }
 
       #if _IS_REVERSE_L
-      target = -target;
+        target = -target;
       #endif
       break;
 
@@ -198,8 +198,7 @@ int suspensionSystem(void){
 
     if( target > MD_SUSPENSION_DUTY ){
       target = MD_SUSPENSION_DUTY;
-    }
-    if( target < -MD_SUSPENSION_DUTY ){
+    } else if( target < -MD_SUSPENSION_DUTY ){
       target = -MD_SUSPENSION_DUTY;
     }
     TrapezoidCtrl(target, &g_md_h[idx], &g_tcon);
