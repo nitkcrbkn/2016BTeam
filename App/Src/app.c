@@ -19,8 +19,8 @@
  */
 
 const tc_const_t g_tcon = {
-  .inc_con = 500,
-  .dec_con = 500
+  .inc_con = 200,
+  .dec_con = 200
 };
 
 static
@@ -293,4 +293,3 @@ int suspensionSystem(void){
   }
   return EXIT_SUCCESS;
 } /* suspensionSystem */
-
