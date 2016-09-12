@@ -105,15 +105,7 @@ int appTask(void){
 }
 
 static int LEDSystem(void){
-  if(__RC_ISPRESSED_UP(g_rc_data)){
-    g_led_mode = lmode_1;
-  }
-  if(__RC_ISPRESSED_DOWN(g_rc_data)){
-    g_led_mode = lmode_2;
-  }
-  if(__RC_ISPRESSED_RIGHT(g_rc_data)){
-    g_led_mode = lmode_3;
-  }
+
   return EXIT_SUCCESS;
 } /* appTask */
 
@@ -126,10 +118,9 @@ int RotationArm(void){
     g_md_h[ARM_ROTATE_MD].mode = D_MMOD_FORWARD;
     g_md_h[ARM_ROTATE_MD].duty = MD_ARM_ROTATE_DUTY;
     return EXIT_SUCCESS;
-  }
-  if (!(__RC_ISPRESSED_L1(g_rc_data)) &&
-      !(__RC_ISPRESSED_R1(g_rc_data)) &&
-       (__RC_ISPRESSED_LEFT(g_rc_data)) ){
+  } else if (!(__RC_ISPRESSED_L1(g_rc_data)) &&
+             !(__RC_ISPRESSED_R1(g_rc_data)) &&
+              (__RC_ISPRESSED_LEFT(g_rc_data)) ){
     g_md_h[ARM_ROTATE_MD].mode = D_MMOD_BACKWARD;
     g_md_h[ARM_ROTATE_MD].duty = MD_ARM_ROTATE_DUTY;
     return EXIT_SUCCESS;
@@ -148,8 +139,8 @@ int ReelSystem(void){
     g_md_h[REEL_MECHA_MD].mode = D_MMOD_FORWARD;
     g_md_h[REEL_MECHA_MD].duty = MD_REEL_DUTY;
   } else if ( (__RC_ISPRESSED_DOWN(g_rc_data)) &&
-	      !(__RC_ISPRESSED_L1(g_rc_data)) &&
-	      !(__RC_ISPRESSED_R1(g_rc_data)) ){
+	           !(__RC_ISPRESSED_L1(g_rc_data)) &&
+	           !(__RC_ISPRESSED_R1(g_rc_data)) ){
     g_md_h[REEL_MECHA_MD].mode = D_MMOD_BACKWARD;
     g_md_h[REEL_MECHA_MD].duty = MD_REEL_DUTY;
   } else{
@@ -252,16 +243,16 @@ int suspensionSystem(void){
         target = rc_analogdata * MD_GAIN;
       }
       if ( ( __RC_ISPRESSED_R2(g_rc_data)) &&
-	  !( __RC_ISPRESSED_L2(g_rc_data)) ){
+	        !( __RC_ISPRESSED_L2(g_rc_data)) ){
         target = -MD_SUSPENSION_DUTY;
       } else if( ( __RC_ISPRESSED_L2(g_rc_data)) &&
-		!( __RC_ISPRESSED_R2(g_rc_data))){
+		            !( __RC_ISPRESSED_R2(g_rc_data))){
         target = MD_SUSPENSION_DUTY;
       }
       if (target > MD_SUSPENSION_DUTY){
-	target = MD_SUSPENSION_DUTY;
+	       target = MD_SUSPENSION_DUTY;
       } else if (target < -MD_SUSPENSION_DUTY){
-	target = -MD_SUSPENSION_DUTY;
+	       target = -MD_SUSPENSION_DUTY;
       }
 #if _IS_REVERSE_R
       target = -target;
@@ -277,18 +268,18 @@ int suspensionSystem(void){
       if( abs(rc_analogdata) > CENTRAL_THRESHOLD ){
         target = rc_analogdata * MD_GAIN;
       }
-      if(( __RC_ISPRESSED_R2(g_rc_data)) &&
+      if( ( __RC_ISPRESSED_R2(g_rc_data)) &&
          !( __RC_ISPRESSED_L2(g_rc_data))){
         target = MD_SUSPENSION_DUTY;
       } else if( ( __RC_ISPRESSED_L2(g_rc_data)) &&
-		!( __RC_ISPRESSED_R2(g_rc_data)) ){
+		            !( __RC_ISPRESSED_R2(g_rc_data)) ){
         target = -MD_SUSPENSION_DUTY;
       }
 
       if (target > MD_SUSPENSION_DUTY){
-	target = MD_SUSPENSION_DUTY;
+	       target = MD_SUSPENSION_DUTY;
       } else if (target < -MD_SUSPENSION_DUTY){
-	target = -MD_SUSPENSION_DUTY;
+	       target = -MD_SUSPENSION_DUTY;
       }
 #if _IS_REVERSE_L
       target = -target;
