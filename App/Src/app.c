@@ -110,13 +110,13 @@ int ArmOC(void){
 static
 int ArmRotate(void){
   /*アーム上昇*/
-  if(( __RC_ISPRESSED_UP(g_rc_data)) &&
-     ( _SW_NOT_UPPER_LIMIT())){
+  if( ( __RC_ISPRESSED_UP(g_rc_data)) &&
+     !( _IS_PRESSED_UPPER_LIMITSW()) ){
     g_md_h[ARM_MOVE_MD].mode = D_MMOD_BACKWARD;
     g_md_h[ARM_MOVE_MD].duty = MD_ARM_DUTY;
     return EXIT_SUCCESS;
   } else if( ( __RC_ISPRESSED_DOWN(g_rc_data)) &&
-             ( _SW_NOT_LOWER_LIMIT()) ){
+            !( _IS_PRESSED_LOWER_LIMITSW()) ){
     g_md_h[ARM_MOVE_MD].mode = D_MMOD_FORWARD;
     g_md_h[ARM_MOVE_MD].duty = MD_ARM_DUTY;
     return EXIT_SUCCESS;
