@@ -78,7 +78,7 @@ static const adjust_t defaultad={
     .display_name = "rc cntr theres",
     .display_unit = "/16",
   },
-  
+
   /*template
   . = {
     .value = ,
@@ -94,8 +94,8 @@ adjust_t g_adjust;
 
 /*finary, add edit list.*/
 const_element_t *editlist[_EDITLIST_NUM]={
-  &(g_adjust.rightadjust),
   &(g_adjust.leftadjust),
+  &(g_adjust.rightadjust),
   &(g_adjust.steeringtime),
   &(g_adjust.rctimeout),
   &(g_adjust.rc_centre_thereshold),
@@ -139,7 +139,7 @@ int save(void){
     g_c_data[i] = editlist[i]->value;
   }
 
-  return saveData();  
+  return saveData();
 }
 
 /*print a element*/
@@ -229,7 +229,7 @@ int ad_keyTask(void){
 
     is_pressed_up   = __RC_ISPRESSED_UP(g_rc_data);
     is_pressed_down = __RC_ISPRESSED_DOWN(g_rc_data);
-      
+
     if( is_pressed_up ||  is_pressed_down){
       _SCR_CURSOR_SET(0, select+2);
       MW_printf(" ");
@@ -242,7 +242,7 @@ int ad_keyTask(void){
       MW_printf(">");
     }
   }
-  
+
   /*cursor action*/
   {
     bool is_pressed_L1;
@@ -278,7 +278,7 @@ int ad_keyTask(void){
   }
 
   _SCR_CURSOR_SET(0, _EDITLIST_NUM+10);
-  
+
   /*reload value*/
   if(__RC_ISPRESSED_TRIANGLE(g_rc_data)){
     message("msg","load default value");
@@ -304,12 +304,12 @@ int ad_keyTask(void){
 
   else if(__RC_ISPRESSED_LEFT(g_rc_data)){
     message("msg","RC_ADJUST");
-    wait(1000);      
+    wait(1000);
     RC_adjust();
     adjustPrint(select);
     return 1;
   }
-  
+
   /*screen update*/
   flush();
 
@@ -342,7 +342,7 @@ int RC_adjust_Zero(void){
 	      __RC_GET_RX_VAL(g_rc_data),
 	      __RC_GET_RY_VAL(g_rc_data)
 	      );
-    
+
     p1x = __RC_GET_LX_VAL(g_rc_data);
     p1y = __RC_GET_LY_VAL(g_rc_data);
     p2x = __RC_GET_RX_VAL(g_rc_data);
@@ -358,7 +358,7 @@ int RC_adjust_Zero(void){
     MW_printf("|       |       |  "" |       |       |  \n");
     MW_printf("|       |       |  "" |       |       |  \n");
     MW_printf("+---------------+  "" +---------------+  \n");
-    
+
     _SCR_CURSOR_SET(((g_c_data[_EDITLIST_NUM + 0] - 16 + 3)*2)+2,g_c_data[_EDITLIST_NUM + 1] - 16+3+2);
     MW_printf("\033[41m  \033[49m");
     _SCR_CURSOR_SET(((g_c_data[_EDITLIST_NUM + 2] - 16 + 3)*2)+2+20,g_c_data[_EDITLIST_NUM + 3] - 16+3+2);
@@ -414,14 +414,14 @@ int RC_adjust_Zero(void){
       return EXIT_SUCCESS;
     }
   }
-  
+
   return EXIT_SUCCESS;
 }
 
 static
 int RC_adjust(void){
   if(RC_adjust_Zero()!=EXIT_SUCCESS)return EXIT_FAILURE;
-  
+
   return EXIT_SUCCESS;
 }
 
@@ -431,12 +431,12 @@ int adjust(void){
   bool ret = true;
   bool had_key_pressed;
   bool has_circle_pressed = false;
-  
+
   _SCR_CLEAR();
   adjustPrint(0);
 
   while(ret){
-    had_key_pressed = 
+    had_key_pressed =
       __RC_ISPRESSED_UP(g_rc_data)||
       __RC_ISPRESSED_DOWN(g_rc_data)||
       __RC_ISPRESSED_L1(g_rc_data)||
@@ -475,10 +475,10 @@ int adjust(void){
       DD_RCPrint(g_rc_data);
       flush();
     }
-    
+
     interval_10ms();
   }
-  
+
   return ret == 1?EXIT_SUCCESS:EXIT_FAILURE;
 }
 

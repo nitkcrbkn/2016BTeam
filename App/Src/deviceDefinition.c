@@ -11,8 +11,8 @@ DD_MDHand_t g_md_h[DD_NUM_OF_MD] = {
     .mode = D_MMOD_FREE, /* mode */
   },
   { .add = 0x11, /*駆動L*/
-    .duty = 0, 
-    .mode = D_MMOD_FREE, 
+    .duty = 0,
+    .mode = D_MMOD_FREE,
   },
   { .add = 0x12,	/*回転機構*/
     .duty = 0,
@@ -39,12 +39,7 @@ DD_ABHand_t g_ab_h[DD_NUM_OF_AB] = {
 DD_SV_t g_sv_h = {
   .i2cadd = 0x40,/*address*/
   .val = {
-    0,0,0,0
+    SV_ORIGIN_VALUE,SV_ORIGIN_VALUE,SV_ORIGIN_VALUE,SV_ORIGIN_VALUE
   }
 };
 #endif
-
-
-
-
-

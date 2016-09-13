@@ -39,6 +39,9 @@ static
 int KickABSystem(void);
 
 static
+int LiftCylider(void);
+
+static
 int ArmABSystem(void);
 
 static
@@ -82,6 +85,10 @@ int appTask(void){
     return ret;
   }
   ret = KickABSystem();
+  if( ret ){
+    return ret;
+  }
+  ret = LiftCylider();
   if( ret ){
     return ret;
   }
@@ -165,6 +172,50 @@ int KickABSystem(void){
   } else {
     had_pressed_lrc_s = 0;
   }
+  return EXIT_SUCCESS;
+}
+
+/*シリンダ持ち上げ,回転用サーボ*/
+static
+int LiftCylider(void){
+  static uint8_t had_pressed_lrcr_s = 0;
+  static uint8_t sv_mode_s = 0;
+
+  if ((__RC_ISPRESSED_L1(g_rc_data)) &&
+      (__RC_ISPRESSED_R1(g_rc_data)) &&
+      (__RC_ISPRESSED_CROSS(g_rc_data))){
+    if (had_pressed_lrcr_s == 0){
+      switch (sv_mode_s){
+      case 0:
+	g_sv_h.val[LIFT_SL_SV_R] = SV_RIGHT_ANGLE_VALUE;
+	g_sv_h.val[LIFT_SL_SV_L] = SV_RIGHT_ANGLE_VALUE;
+	sv_mode_s++;
+	break;
+      case 1:
+	g_sv_h.val[ROTATE_SL_SV_R] = SV_HALF_TURN_VALUE ;
+	g_sv_h.val[ROTATE_SL_SV_L] = SV_HALF_TURN_VALUE ;
+	sv_mode_s++;
+	break;
+      case 2:
+	g_sv_h.val[ROTATE_SL_SV_R] = SV_ORIGIN_VALUE;
+	g_sv_h.val[ROTATE_SL_SV_L] = SV_ORIGIN_VALUE;
+	sv_mode_s++;
+	break;
+      case 3:
+	g_sv_h.val[LIFT_SL_SV_R] = SV_ORIGIN_VALUE;
+	g_sv_h.val[LIFT_SL_SV_L] = SV_ORIGIN_VALUE;
+	sv_mode_s=0;
+	break;
+      default:
+	sv_mode_s = 0;
+	break;
+      }
+      had_pressed_lrcr_s = 1;
+    }
+  } else {
+    had_pressed_lrcr_s = 0;
+  }
+
   return EXIT_SUCCESS;
 }
 

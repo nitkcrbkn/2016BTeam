@@ -9,7 +9,7 @@ int appInit(void);
 
 #define DD_USE_ENCODER1 0
 #define DD_USE_ENCODER2 0
-#define DD_NUM_OF_SV 0
+#define DD_NUM_OF_SV 4
 
 #include "DD_RC.h"
 #include "DD_MD.h"
@@ -27,6 +27,10 @@ int appInit(void);
 #define MD_SUSPENSION_DUTY 3000
 #define MD_ARM_ROTATE_DUTY 5000
 #define MD_REEL_DUTY 5000
+
+#define SV_ORIGIN_VALUE 100
+#define SV_RIGHT_ANGLE_VALUE 280
+#define SV_HALF_TURN_VALUE 460
 
 /*駆動部*/
 #define DRIVE_MD_R 0
@@ -51,6 +55,12 @@ int appInit(void);
 
 /*クラッチ機構用ソレノイド*/
 #define CLUTCH_SN (1<<2)
+
+/*サーボ定義*/
+#define LIFT_SL_SV_R 0
+#define LIFT_SL_SV_L 1
+#define ROTATE_SL_SV_R 2
+#define ROTATE_SL_SV_L 3
 
 #define MD_GAIN ( DD_MD_MAX_DUTY / DD_RC_ANALOG_MAX )
 
