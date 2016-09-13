@@ -39,7 +39,7 @@ static
 int KickABSystem(void);
 
 static
-int LiftCylider(void);
+int LiftCylinder(void);
 
 static
 int ArmABSystem(void);
@@ -88,7 +88,7 @@ int appTask(void){
   if( ret ){
     return ret;
   }
-  ret = LiftCylider();
+  ret = LiftCylinder();
   if( ret ){
     return ret;
   }
@@ -177,7 +177,7 @@ int KickABSystem(void){
 
 /*シリンダ持ち上げ,回転用サーボ*/
 static
-int LiftCylider(void){
+int LiftCylinder(void){
   static uint8_t had_pressed_lrcr_s = 0;
   static uint8_t sv_mode_s = 0;
 
