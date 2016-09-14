@@ -7,6 +7,16 @@
 int appTask(void);
 int appInit(void);
 
+/*アーム回転リミットスイッチ(時計回り)*/
+#define _ARM_CW_LIMITSW_GPIOxID GPIOBID
+#define _ARM_CW_LIMITSW_GPIOPIN GPIO_PIN_15
+#define _IS_PRESSED_ARM_CW_LIMITSW() ( !( MW_GPIORead(_ARM_CW_LIMITSW_GPIOxID, _ARM_CW_LIMITSW_GPIOPIN)))
+
+/*アーム回転リミットスイッチ(反時計回り)*/
+#define _ARM_CCW_LIMITSW_GPIOxID GPIOCID
+#define _ARM_CCW_LIMITSW_GPIOPIN GPIO_PIN_0
+#define _IS_PRESSED_ARM_CCW_LIMITSW() ( !( MW_GPIORead(_ARM_CCW_LIMITSW_GPIOxID, _ARM_CCW_LIMITSW_GPIOPIN)))
+
 #define DD_USE_ENCODER1 0
 #define DD_USE_ENCODER2 0
 #define DD_NUM_OF_SV 4

@@ -121,19 +121,20 @@ static
 int RotationArm(void){
   if( !( __RC_ISPRESSED_L1(g_rc_data)) &&
       !( __RC_ISPRESSED_R1(g_rc_data)) &&
-      ( __RC_ISPRESSED_RIGHT(g_rc_data))){
+       ( __RC_ISPRESSED_RIGHT(g_rc_data)) &&
+      !(_IS_PRESSED_ARM_CW_LIMITSW())){
     g_md_h[ARM_ROTATE_MD].mode = D_MMOD_FORWARD;
     g_md_h[ARM_ROTATE_MD].duty = MD_ARM_ROTATE_DUTY;
-    return EXIT_SUCCESS;
   } else if( !( __RC_ISPRESSED_L1(g_rc_data)) &&
              !( __RC_ISPRESSED_R1(g_rc_data)) &&
-             ( __RC_ISPRESSED_LEFT(g_rc_data))){
+              ( __RC_ISPRESSED_LEFT(g_rc_data)) &&
+             !(_IS_PRESSED_ARM_CCW_LIMITSW())){
     g_md_h[ARM_ROTATE_MD].mode = D_MMOD_BACKWARD;
     g_md_h[ARM_ROTATE_MD].duty = MD_ARM_ROTATE_DUTY;
-    return EXIT_SUCCESS;
-  }
-  g_md_h[ARM_ROTATE_MD].mode = D_MMOD_FREE;
-  g_md_h[ARM_ROTATE_MD].duty = 0;
+  }else {
+    g_md_h[ARM_ROTATE_MD].mode = D_MMOD_BRAKE;
+    g_md_h[ARM_ROTATE_MD].duty = 0;
+}
   return EXIT_SUCCESS;
 }
 
@@ -344,4 +345,3 @@ int suspensionSystem(void){
   }
   return EXIT_SUCCESS;
 } /* suspensionSystem */
-
