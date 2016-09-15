@@ -7,18 +7,27 @@
 int appTask(void);
 int appInit(void);
 
+/*アーム部の自動昇降モードのステータス*/
+typedef enum{
+  _ARM_AUTO_FALSE,
+  _ARM_AUTO_UP,
+  _ARM_AUTO_DOWN,
+} arm_mode_t;
+
 /*上段のリミットスイッチは押されているか*/
 #define _SW_UPPER_LIMIT_GPIOxID GPIOBID
 #define _SW_UPPER_LIMIT_GPIOPIN GPIO_PIN_15
-#define _SW_NOT_UPPER_LIMIT() (MW_GPIORead(_SW_UPPER_LIMIT_GPIOxID, _SW_UPPER_LIMIT_GPIOPIN))
+#define _IS_PRESSED_UPPER_LIMITSW() (!(MW_GPIORead(_SW_UPPER_LIMIT_GPIOxID, _SW_UPPER_LIMIT_GPIOPIN)))
 
 /*下段のリミットスイッチは押されているか*/
 #define _SW_LOWER_LIMIT_GPIOxID GPIOCID
 #define _SW_LOWER_LIMIT_GPIOPIN GPIO_PIN_0
-#define _SW_NOT_LOWER_LIMIT() (MW_GPIORead(_SW_LOWER_LIMIT_GPIOxID, _SW_LOWER_LIMIT_GPIOPIN))
+#define _IS_PRESSED_LOWER_LIMITSW() (!(MW_GPIORead(_SW_LOWER_LIMIT_GPIOxID, _SW_LOWER_LIMIT_GPIOPIN)))
 
 /*アーム上下用モータのduty*/
-#define MD_ARM_DUTY 9500
+#define _ARM_DUTY 9500
+#define MD_ARM_UP_DUTY -_ARM_DUTY
+#define MD_ARM_DOWN_DUTY _ARM_DUTY
 #define MD_SUSPENSION_DUTY 2000
 
 #define CENTRAL_THRESHOLD 4

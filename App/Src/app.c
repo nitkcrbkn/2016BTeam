@@ -44,13 +44,14 @@ int appInit(void){
 
 /*application tasks*/
 int appTask(void){
-  int ret=0;
+  int ret = 0;
 
-  if(__RC_ISPRESSED_R1(g_rc_data)&&__RC_ISPRESSED_R2(g_rc_data)&&
-     __RC_ISPRESSED_L1(g_rc_data)&&__RC_ISPRESSED_L2(g_rc_data)){
-    while(__RC_ISPRESSED_R1(g_rc_data)||__RC_ISPRESSED_R2(g_rc_data)||
-	  __RC_ISPRESSED_L1(g_rc_data)||__RC_ISPRESSED_L2(g_rc_data))
-        SY_wait(10);
+  if( __RC_ISPRESSED_R1(g_rc_data) && __RC_ISPRESSED_R2(g_rc_data) &&
+      __RC_ISPRESSED_L1(g_rc_data) && __RC_ISPRESSED_L2(g_rc_data)){
+    while( __RC_ISPRESSED_R1(g_rc_data) || __RC_ISPRESSED_R2(g_rc_data) ||
+           __RC_ISPRESSED_L1(g_rc_data) || __RC_ISPRESSED_L2(g_rc_data)){
+      SY_wait(10);
+    }
     ad_main();
   }
 
@@ -109,28 +110,50 @@ int ArmOC(void){
 /*Private アーム上下*/
 static
 int ArmRotate(void){
-  /*アーム上昇*/
+  const tc_const_t arm_tcon = {
+    .inc_con = 200,
+    .dec_con = 10000
+  };
+  int arm_target;       /*アーム部のduty*/
+  static arm_mode_t arm_mod = _ARM_AUTO_FALSE;
+
+  /*自動昇降モードへ移行*/
   if(( __RC_ISPRESSED_UP(g_rc_data)) &&
-     !( __RC_ISPRESSED_DOWN(g_rc_data)) &&
-      ( _SW_NOT_UPPER_LIMIT())){
-    g_md_h[ARM_MOVE_MD].mode = D_MMOD_BACKWARD;
-    g_md_h[ARM_MOVE_MD].duty = MD_ARM_DUTY;
-    return EXIT_SUCCESS;
-  }
-  /*アーム下降*/
-  if(( __RC_ISPRESSED_DOWN(g_rc_data)) &&
-     !( __RC_ISPRESSED_UP(g_rc_data)) &&
-      ( _SW_NOT_LOWER_LIMIT())){
-    g_md_h[ARM_MOVE_MD].mode = D_MMOD_FORWARD;
-    g_md_h[ARM_MOVE_MD].duty = MD_ARM_DUTY;
-    return EXIT_SUCCESS;
+     ( __RC_ISPRESSED_R1(g_rc_data)) &&
+     ( __RC_ISPRESSED_L1(g_rc_data))){
+    arm_mod = _ARM_AUTO_UP;
+  } else if(( __RC_ISPRESSED_DOWN(g_rc_data)) &&
+            ( __RC_ISPRESSED_R1(g_rc_data)) &&
+            ( __RC_ISPRESSED_L1(g_rc_data))){
+    arm_mod = _ARM_AUTO_DOWN;
   }
 
-  g_md_h[ARM_MOVE_MD].duty = 0;
-  g_md_h[ARM_MOVE_MD].mode = D_MMOD_BRAKE;;
+  if(( arm_mod == _ARM_AUTO_UP ) &&
+     !( _IS_PRESSED_UPPER_LIMITSW())){
+    arm_target = MD_ARM_UP_DUTY;
+  } else if(( arm_mod = _ARM_AUTO_DOWN ) &&
+            !( _IS_PRESSED_LOWER_LIMITSW())){
+    arm_target = MD_ARM_DOWN_DUTY;
+  } else if(( __RC_ISPRESSED_UP(g_rc_data)) &&
+            !( __RC_ISPRESSED_R1(g_rc_data)) &&
+            !( __RC_ISPRESSED_L1(g_rc_data)) &&
+            !( _IS_PRESSED_UPPER_LIMITSW())){
+    arm_mod = _ARM_AUTO_FALSE;
+    arm_target = MD_ARM_UP_DUTY;
+  } else if(( __RC_ISPRESSED_DOWN(g_rc_data)) &&
+            !( __RC_ISPRESSED_R1(g_rc_data)) &&
+            !( __RC_ISPRESSED_L1(g_rc_data)) &&
+            !( _IS_PRESSED_LOWER_LIMITSW())){
+    arm_mod = _ARM_AUTO_FALSE;
+    arm_target = MD_ARM_DOWN_DUTY;
+  }else {
+    arm_mod = _ARM_AUTO_FALSE;
+    arm_target = 0;
+  }
+  TrapezoidCtrl(arm_target, &g_md_h[ARM_MOVE_MD], &arm_tcon);
+
   return EXIT_SUCCESS;
-}
-
+} /* ArmRotate */
 
 /*プライベート 足回りシステム*/
 static
@@ -164,12 +187,14 @@ int suspensionSystem(void){
       }
 
       #if _IS_REVERSE_R
-            target = -target;
+      target = -target;
       #endif
-      if (target > MD_SUSPENSION_DUTY)
+      if( target > MD_SUSPENSION_DUTY ){
         target = MD_SUSPENSION_DUTY;
-      if (target < -MD_SUSPENSION_DUTY)
+      }
+      if( target < -MD_SUSPENSION_DUTY ){
         target = -MD_SUSPENSION_DUTY;
+      }
       TrapezoidCtrl(target, &g_md_h[idx], &g_tcon);
       break;
 
@@ -190,12 +215,14 @@ int suspensionSystem(void){
       }
 
       #if _IS_REVERSE_L
-            target = -target;
+      target = -target;
       #endif
-      if (target > MD_SUSPENSION_DUTY)
+      if( target > MD_SUSPENSION_DUTY ){
         target = MD_SUSPENSION_DUTY;
-      if (target < -MD_SUSPENSION_DUTY)
+      }
+      if( target < -MD_SUSPENSION_DUTY ){
         target = -MD_SUSPENSION_DUTY;
+      }
       TrapezoidCtrl(target, &g_md_h[idx], &g_tcon);
       break;
 
@@ -206,3 +233,4 @@ int suspensionSystem(void){
   }
   return EXIT_SUCCESS;
 } /* suspensionSystem */
+
