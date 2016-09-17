@@ -30,11 +30,6 @@ int ArmOC(void);
 static
 int ArmRotate(void);
 
-const tc_const_t g_tcon = {
-  200,
-  500
-};
-
 int appInit(void){
   message("msg", "Message");
   ad_init();
@@ -127,31 +122,35 @@ int ArmRotate(void){
             ( __RC_ISPRESSED_L1(g_rc_data))){
     arm_mod = _ARM_AUTO_DOWN;
   }
-
-  if(( arm_mod == _ARM_AUTO_UP ) &&
+  
+  if(( __RC_ISPRESSED_UP(g_rc_data)) &&
+     !( __RC_ISPRESSED_R1(g_rc_data)) &&
+     !( __RC_ISPRESSED_L1(g_rc_data)) &&
      !( _IS_PRESSED_UPPER_LIMITSW())){
-    arm_target = MD_ARM_UP_DUTY;
-  } else if(( arm_mod = _ARM_AUTO_DOWN ) &&
-            !( _IS_PRESSED_LOWER_LIMITSW())){
-    arm_target = MD_ARM_DOWN_DUTY;
-  } else if(( __RC_ISPRESSED_UP(g_rc_data)) &&
-            !( __RC_ISPRESSED_R1(g_rc_data)) &&
-            !( __RC_ISPRESSED_L1(g_rc_data)) &&
-            !( _IS_PRESSED_UPPER_LIMITSW())){
     arm_mod = _ARM_AUTO_FALSE;
     arm_target = MD_ARM_UP_DUTY;
-  } else if(( __RC_ISPRESSED_DOWN(g_rc_data)) &&
-            !( __RC_ISPRESSED_R1(g_rc_data)) &&
-            !( __RC_ISPRESSED_L1(g_rc_data)) &&
-            !( _IS_PRESSED_LOWER_LIMITSW())){
+  }
+  else if(( __RC_ISPRESSED_DOWN(g_rc_data)) &&
+	  !( __RC_ISPRESSED_R1(g_rc_data)) &&
+	  !( __RC_ISPRESSED_L1(g_rc_data)) &&
+	  !( _IS_PRESSED_LOWER_LIMITSW())){
     arm_mod = _ARM_AUTO_FALSE;
     arm_target = MD_ARM_DOWN_DUTY;
-  }else {
+  }
+  else if(( arm_mod == _ARM_AUTO_UP ) &&
+	  !( _IS_PRESSED_UPPER_LIMITSW())){
+    arm_target = MD_ARM_UP_DUTY;
+  }
+  else if(( arm_mod == _ARM_AUTO_DOWN ) &&
+	  !( _IS_PRESSED_LOWER_LIMITSW())){
+    arm_target = MD_ARM_DOWN_DUTY;
+  }
+  else {
     arm_mod = _ARM_AUTO_FALSE;
     arm_target = 0;
   }
   TrapezoidCtrl(arm_target, &g_md_h[ARM_MOVE_MD], &arm_tcon);
-
+  
   return EXIT_SUCCESS;
 } /* ArmRotate */
 
@@ -163,6 +162,11 @@ int suspensionSystem(void){
   int target;           /*目標となる制御値*/
   unsigned int idx;     /*インデックス*/
   int i;                /*カウンタ用*/
+
+  const tc_const_t suspension_tcon = {
+    .inc_con = 200,
+    .dec_con = 500
+  };
 
   /*for each motor*/
   for( i = 0; i < num_of_motor; i++ ){
@@ -178,24 +182,17 @@ int suspensionSystem(void){
       }
       if(( __RC_ISPRESSED_R2(g_rc_data)) &&
          !( __RC_ISPRESSED_L2(g_rc_data))){
-        target = -MD_SUSPENSION_DUTY;
+        target = -MD_SUSPENSION_DUTY / 2;
       }
 
       if(( __RC_ISPRESSED_L2(g_rc_data)) &&
          !( __RC_ISPRESSED_R2(g_rc_data))){
-        target = MD_SUSPENSION_DUTY;
+        target = MD_SUSPENSION_DUTY / 2;
       }
 
       #if _IS_REVERSE_R
       target = -target;
       #endif
-      if( target > MD_SUSPENSION_DUTY ){
-        target = MD_SUSPENSION_DUTY;
-      }
-      if( target < -MD_SUSPENSION_DUTY ){
-        target = -MD_SUSPENSION_DUTY;
-      }
-      TrapezoidCtrl(target, &g_md_h[idx], &g_tcon);
       break;
 
     case 1:
@@ -207,30 +204,28 @@ int suspensionSystem(void){
       }
       if(( __RC_ISPRESSED_R2(g_rc_data)) &&
          !( __RC_ISPRESSED_L2(g_rc_data))){
-        target = MD_SUSPENSION_DUTY;
+        target = MD_SUSPENSION_DUTY / 2;
       }
       if(( __RC_ISPRESSED_L2(g_rc_data)) &&
          !( __RC_ISPRESSED_R2(g_rc_data))){
-        target = -MD_SUSPENSION_DUTY;
+        target = -MD_SUSPENSION_DUTY / 2;
       }
 
       #if _IS_REVERSE_L
       target = -target;
       #endif
-      if( target > MD_SUSPENSION_DUTY ){
-        target = MD_SUSPENSION_DUTY;
-      }
-      if( target < -MD_SUSPENSION_DUTY ){
-        target = -MD_SUSPENSION_DUTY;
-      }
-      TrapezoidCtrl(target, &g_md_h[idx], &g_tcon);
       break;
 
     default:
       message("err", "real MDs are fewer than defined idx:%d", i);
       return EXIT_FAILURE;
     } /* switch */
+    if( target > MD_SUSPENSION_DUTY ){
+      target = MD_SUSPENSION_DUTY;
+    } else if( target < -MD_SUSPENSION_DUTY ){
+      target = -MD_SUSPENSION_DUTY;
+    }
+    TrapezoidCtrl(target, &g_md_h[idx], &suspension_tcon);
   }
   return EXIT_SUCCESS;
 } /* suspensionSystem */
-
