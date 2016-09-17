@@ -2,7 +2,7 @@
 #define __APP_H
 
 /*NO Device mode*/
-#define _NO_DEVICE 0
+#define _NO_DEVICE 1
 
 int appTask(void);
 int appInit(void);
@@ -36,7 +36,7 @@ int appInit(void);
 
 #define MD_SUSPENSION_DUTY 3000
 #define MD_ARM_ROTATE_DUTY 5000
-#define MD_REEL_DUTY 5000
+#define MD_REEL_DUTY 4000
 
 #define SV_ORIGIN_VALUE 100
 #define SV_RIGHT_ANGLE_VALUE 280
