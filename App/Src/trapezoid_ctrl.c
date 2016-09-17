@@ -15,11 +15,17 @@ void TrapezoidCtrl(int target_duty, DD_MDHand_t *handle, const tc_const_t *idval
     } else{
       duty = prev_duty + _MAX(-idval->dec_con, target_duty - prev_duty);
     }
-  }else {/*直前が逆回転 or Freeなら*/
+  }else if( handle->mode == D_MMOD_BACKWARD ){/*直前が逆回転なら*/
     if( target_duty < -prev_duty ){
       duty = -prev_duty + _MAX(-idval->inc_con, target_duty - ( -prev_duty ));
     } else{
       duty = -prev_duty + _MIN(idval->dec_con, target_duty - ( -prev_duty ));
+    }
+  } else {/*直前が0なら*/
+    if (target_duty > 0){
+      duty = prev_duty + _MIN(idval->inc_con, target_duty - prev_duty);
+    } else {
+      duty = -prev_duty + _MAX(-idval->inc_con, target_duty - ( -prev_duty ));
     }
   }
   if( duty > 0 ){
@@ -27,7 +33,7 @@ void TrapezoidCtrl(int target_duty, DD_MDHand_t *handle, const tc_const_t *idval
   } else if( duty < 0 ){
     handle->mode = D_MMOD_BACKWARD;
   } else{
-    handle->mode = D_MMOD_FREE;
+    handle->mode = D_MMOD_BRAKE;
   }
   handle->duty = abs(duty);
 }
