@@ -106,7 +106,7 @@ int ArmOC(void){
 static
 int ArmRotate(void){
   const tc_const_t arm_tcon = {
-    .inc_con = 200,
+    .inc_con = 500,
     .dec_con = 10000
   };
   int arm_target;       /*アーム部のduty*/

@@ -28,7 +28,7 @@ typedef enum{
 #define _ARM_DUTY 9500
 #define MD_ARM_UP_DUTY -_ARM_DUTY
 #define MD_ARM_DOWN_DUTY _ARM_DUTY
-#define MD_SUSPENSION_DUTY 2000
+#define MD_SUSPENSION_DUTY 3000
 
 #define CENTRAL_THRESHOLD 4
 
