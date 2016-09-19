@@ -35,7 +35,7 @@ DD_ABHand_t g_ab_h[DD_NUM_OF_AB] = {
 DD_SV_t g_sv_h = {
   .i2cadd = 0x40,/*address*/
   .val = {
-          SV_ORIGIN_VALUE, SV_ORIGIN_VALUE, SV_ORIGIN_VALUE, SV_ORIGIN_VALUE
-}
+    SV_ORIGIN_VALUE, SV_ORIGIN_VALUE, SV_ORIGIN_VALUE, SV_ORIGIN_VALUE
+  }
 };
 #endif
