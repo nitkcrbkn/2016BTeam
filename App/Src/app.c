@@ -111,19 +111,17 @@ static
 int ArmRotate(void){
   /*アーム上昇*/
   if( ( __RC_ISPRESSED_UP(g_rc_data)) &&
-     !( _IS_PRESSED_UPPER_LIMITSW()) ){
+      !( _IS_PRESSED_UPPER_LIMITSW()) ){
     g_md_h[ARM_MOVE_MD].mode = D_MMOD_BACKWARD;
     g_md_h[ARM_MOVE_MD].duty = MD_ARM_DUTY;
-    return EXIT_SUCCESS;
   } else if( ( __RC_ISPRESSED_DOWN(g_rc_data)) &&
-            !( _IS_PRESSED_LOWER_LIMITSW()) ){
+	     !( _IS_PRESSED_LOWER_LIMITSW()) ){
     g_md_h[ARM_MOVE_MD].mode = D_MMOD_FORWARD;
     g_md_h[ARM_MOVE_MD].duty = MD_ARM_DUTY;
-    return EXIT_SUCCESS;
+  }else {
+    g_md_h[ARM_MOVE_MD].duty = 0;
+    g_md_h[ARM_MOVE_MD].mode = D_MMOD_BRAKE;
   }
-
-  g_md_h[ARM_MOVE_MD].duty = 0;
-  g_md_h[ARM_MOVE_MD].mode = D_MMOD_BRAKE;
   return EXIT_SUCCESS;
 }
 
@@ -137,11 +135,18 @@ int WaistRotate(void){
 /*展開機構*/
 static
 int ExpandSystem(void){
-  if( ( __RC_ISPRESSED_R1(g_rc_data)) &&
-    (__RC_ISPRESSED_L1(g_rc_data)) &&
-    (__RC_ISPRESSED_SQARE(g_rc_data))){
+  static int had_pressed_sqare_s = 0;
+  if(( __RC_ISPRESSED_L1(g_rc_data)) &&
+     ( __RC_ISPRESSED_R1(g_rc_data)) &&
+     ( __RC_ISPRESSED_SQARE(g_rc_data))){
+    if( had_pressed_sqare_s == 0 ){
       g_ab_h[DRIVER_AB].dat ^= EXPAND_MECHA_AB;
+      had_pressed_sqare_s = 1;
     }
+  } else {
+    had_pressed_sqare_s = 0;
+  }
+  
   return EXIT_SUCCESS;
 }
 
@@ -167,9 +172,9 @@ int suspensionSystem(void){
         target = rc_analogdata * MD_GAIN;
       }
       if( __RC_ISPRESSED_R2(g_rc_data)){
-        target = -MD_SUSPENSION_DUTY;
+        target = -MD_SUSPENSION_DUTY / 2;
       } else if( __RC_ISPRESSED_L2(g_rc_data)){
-        target = MD_SUSPENSION_DUTY;
+        target = MD_SUSPENSION_DUTY / 2;
       }
 
       #if _IS_REVERSE_R
@@ -185,9 +190,9 @@ int suspensionSystem(void){
         target = rc_analogdata * MD_GAIN;
       }
       if( __RC_ISPRESSED_R2(g_rc_data)){
-        target = MD_SUSPENSION_DUTY;
+        target = MD_SUSPENSION_DUTY / 2;
       }else if( ( __RC_ISPRESSED_L2(g_rc_data)) ){
-        target = -MD_SUSPENSION_DUTY;
+        target = -MD_SUSPENSION_DUTY / 2;
       }
 
       #if _IS_REVERSE_L

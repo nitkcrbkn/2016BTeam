@@ -19,12 +19,12 @@ int appInit(void);
 
 /*アーム上下用モータのduty*/
 #define MD_ARM_DUTY 9500
-#define MD_SUSPENSION_DUTY 2000
+#define MD_SUSPENSION_DUTY 4000
 
 #define CENTRAL_THRESHOLD 4
 
 /*Reverse MD direction Flags*/
-#define _IS_REVERSE_R 0
+#define _IS_REVERSE_R 1
 #define _IS_REVERSE_L 0
 
 /*Num of device*/
@@ -44,10 +44,10 @@ int appInit(void);
 
 #define DRIVER_AB 0
 /*キック用シリンダ*/
-#define KICK_AB_R ( 1 << 0 )
-#define KICK_AB_L ( 1 << 1 )
+#define KICK_AB_R ( 1 << 4 )
+#define KICK_AB_L ( 1 << 5 )
 /*アーム開閉用*/
-#define ARM_OC_AB ( 1 << 2 )
+#define ARM_OC_AB ( 1 << 0 )
 /*展開機構*/
 #define EXPAND_MECHA_AB ( 1 << 3 )
 
