@@ -31,12 +31,13 @@ int appInit(void);
 #define _IS_REVERSE_R 1
 #define _IS_REVERSE_L 0
 
-#define DD_NUM_OF_MD 4
+#define DD_NUM_OF_MD 5
 #define DD_NUM_OF_AB 2
 
 #define MD_SUSPENSION_DUTY 3000
 #define MD_ARM_ROTATE_DUTY 5000
 #define MD_REEL_DUTY 4000
+#define MD_WHEEL_DUTY 4000
 
 #define SV_ORIGIN_VALUE 100
 #define SV_RIGHT_ANGLE_VALUE 280
@@ -48,6 +49,8 @@ int appInit(void);
 /*回転機構用モータ,リール機構用モータ*/
 #define ARM_ROTATE_MD 2
 #define REEL_MECHA_MD 3
+
+#define WHEEL_MD 4
 
 #define DRIVER_AB 0
 #define DRIVER_VM 1

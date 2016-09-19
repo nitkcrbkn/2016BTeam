@@ -25,6 +25,9 @@ static
 int suspensionSystem(void);
 
 static
+int WheelSystem(void);
+
+static
 int RotationArm(void);
 
 static
@@ -69,6 +72,10 @@ int appTask(void){
   /*途中必ず定数回で終了すること。*/
   ret = suspensionSystem();
   if( ret ){
+    return ret;
+  }
+  ret = WheelSystem();
+  if ( ret ){
     return ret;
   }
   ret = RotationArm();
@@ -159,6 +166,26 @@ int ReelSystem(void){
     target = 0;
   }
   TrapezoidCtrl(target, &g_md_h[REEL_MECHA_MD], &reel_tcon);
+  return EXIT_SUCCESS;
+}
+
+static
+int WheelSystem(void){
+  int target;
+  int gain = (MD_WHEEL_DUTY / DD_RC_ANALOG_MAX);
+  int rc_analogdata = -( DD_RCGetRY(g_rc_data));
+  const tc_const_t w_tcon = {
+    .inc_con = 200,
+    .dec_con = 400
+  };
+  
+  /*これは中央か?±3程度余裕を持つ必要がある。*/
+  if( abs(rc_analogdata) > CENTRAL_THRESHOLD ){
+    target = rc_analogdata * gain;
+  }else {
+    target = 0;
+  }
+  TrapezoidCtrl(target, &g_md_h[WHEEL_MD], &w_tcon);
   return EXIT_SUCCESS;
 }
 
