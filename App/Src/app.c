@@ -137,7 +137,11 @@ int WaistRotate(void){
 /*展開機構*/
 static
 int ExpandSystem(void){
-  /*未実装 todo*/
+  if( ( __RC_ISPRESSED_R1(g_rc_data)) &&
+    (__RC_ISPRESSED_L1(g_rc_data)) &&
+    (__RC_ISPRESSED_SQARE(g_rc_data))){
+      g_ab_h[DRIVER_AB].dat ^= EXPAND_MECHA_AB;
+    }
   return EXIT_SUCCESS;
 }
 
