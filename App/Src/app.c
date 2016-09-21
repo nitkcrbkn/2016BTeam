@@ -110,45 +110,59 @@ int ArmRotate(void){
     .dec_con = 10000
   };
   int arm_target;       /*アーム部のduty*/
-  static arm_mode_t arm_mod = _ARM_AUTO_FALSE;
+  static arm_status_t arm_mod = _ARM_NOMOVE_NOAUTO;
+  static int press_count = 0;
 
-  /*自動昇降モードへ移行*/
-  if(( __RC_ISPRESSED_UP(g_rc_data)) &&
-     ( __RC_ISPRESSED_R1(g_rc_data)) &&
-     ( __RC_ISPRESSED_L1(g_rc_data))){
-    arm_mod = _ARM_AUTO_UP;
-  } else if(( __RC_ISPRESSED_DOWN(g_rc_data)) &&
-            ( __RC_ISPRESSED_R1(g_rc_data)) &&
-            ( __RC_ISPRESSED_L1(g_rc_data))){
-    arm_mod = _ARM_AUTO_DOWN;
+  /*コントローラのボタンは押されているか*/
+  if (__RC_ISPRESSED_UP(g_rc_data)){
+    arm_mod = _ARM_UP_NOAUTO;
+    if (press_count++ >= 100){
+      arm_mod = _ARM_UP_AUTO;
+    }
   }
-  
-  if(( __RC_ISPRESSED_UP(g_rc_data)) &&
-     !( __RC_ISPRESSED_R1(g_rc_data)) &&
-     !( __RC_ISPRESSED_L1(g_rc_data)) &&
-     !( _IS_PRESSED_UPPER_LIMITSW())){
-    arm_mod = _ARM_AUTO_FALSE;
-    arm_target = MD_ARM_UP_DUTY;
-  }
-  else if(( __RC_ISPRESSED_DOWN(g_rc_data)) &&
-	  !( __RC_ISPRESSED_R1(g_rc_data)) &&
-	  !( __RC_ISPRESSED_L1(g_rc_data)) &&
-	  !( _IS_PRESSED_LOWER_LIMITSW())){
-    arm_mod = _ARM_AUTO_FALSE;
-    arm_target = MD_ARM_DOWN_DUTY;
-  }
-  else if(( arm_mod == _ARM_AUTO_UP ) &&
-	  !( _IS_PRESSED_UPPER_LIMITSW())){
-    arm_target = MD_ARM_UP_DUTY;
-  }
-  else if(( arm_mod == _ARM_AUTO_DOWN ) &&
-	  !( _IS_PRESSED_LOWER_LIMITSW())){
-    arm_target = MD_ARM_DOWN_DUTY;
+  else if (__RC_ISPRESSED_DOWN(g_rc_data)){
+    arm_mod = _ARM_DOWN_NOAUTO;
+    if (press_count++ >= 100){
+      arm_mod = _ARM_DOWN_AUTO;
+    }
   }
   else {
-    arm_mod = _ARM_AUTO_FALSE;
-    arm_target = 0;
+    if (arm_mod == _ARM_UP_NOAUTO || arm_mod == _ARM_DOWN_NOAUTO){
+      arm_mod = _ARM_NOMOVE_NOAUTO;
+    }
+    press_count = 0;
   }
+  /*リミットスイッチは押されているか*/
+  if (_IS_PRESSED_UPPER_LIMITSW() &&
+      (arm_mod == _ARM_UP_NOAUTO || arm_mod == _ARM_UP_AUTO)){
+    arm_mod = _ARM_NOMOVE_NOAUTO;
+  }
+  else if (_IS_PRESSED_LOWER_LIMITSW() &&
+      (arm_mod == _ARM_DOWN_NOAUTO || arm_mod == _ARM_DOWN_AUTO)){
+    arm_mod = _ARM_NOMOVE_NOAUTO;
+  }
+  
+  switch (arm_mod){
+  case _ARM_NOMOVE_NOAUTO:
+    arm_target = 0;
+    break;
+  case _ARM_UP_NOAUTO:
+    arm_target = MD_ARM_UP_DUTY;
+    break;
+  case _ARM_DOWN_NOAUTO:
+    arm_target = MD_ARM_DOWN_DUTY;
+    break;
+  case _ARM_UP_AUTO:
+    arm_target = MD_ARM_UP_DUTY;
+    break;
+  case _ARM_DOWN_AUTO:
+    arm_target = MD_ARM_DOWN_DUTY;
+    break;
+  default:
+    arm_target = 0;
+    break;
+  }
+  
   TrapezoidCtrl(arm_target, &g_md_h[ARM_MOVE_MD], &arm_tcon);
   
   return EXIT_SUCCESS;
@@ -160,6 +174,7 @@ int suspensionSystem(void){
   const int num_of_motor = 2;/*モータの個数*/
   int rc_analogdata;    /*コントローラから送られるアナログデータを格納*/
   int target;           /*目標となる制御値*/
+  int gain = (int)(MD_SUSPENSION_DUTY / DD_RC_ANALOG_MAX);
   unsigned int idx;     /*インデックス*/
   int i;                /*カウンタ用*/
 
@@ -178,7 +193,7 @@ int suspensionSystem(void){
       rc_analogdata = -( DD_RCGetRY(g_rc_data));
       /*これは中央か?±3程度余裕を持つ必要がある。*/
       if( abs(rc_analogdata) > CENTRAL_THRESHOLD ){
-        target = rc_analogdata * MD_GAIN;
+        target = rc_analogdata * gain;
       }
       if(( __RC_ISPRESSED_R2(g_rc_data)) &&
          !( __RC_ISPRESSED_L2(g_rc_data))){
@@ -200,7 +215,7 @@ int suspensionSystem(void){
       rc_analogdata = -( DD_RCGetRY(g_rc_data));
       /*これは中央か?±3程度余裕を持つ必要がある。*/
       if( abs(rc_analogdata) > CENTRAL_THRESHOLD ){
-        target = rc_analogdata * MD_GAIN;
+        target = rc_analogdata * gain;
       }
       if(( __RC_ISPRESSED_R2(g_rc_data)) &&
          !( __RC_ISPRESSED_L2(g_rc_data))){

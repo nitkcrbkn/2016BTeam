@@ -2,17 +2,19 @@
 #define __APP_H
 
 /*NO Device mode*/
-#define _NO_DEVICE 0
+#define _NO_DEVICE 1
 
 int appTask(void);
 int appInit(void);
 
 /*アーム部の自動昇降モードのステータス*/
 typedef enum{
-  _ARM_AUTO_FALSE,
-  _ARM_AUTO_UP,
-  _ARM_AUTO_DOWN,
-} arm_mode_t;
+  _ARM_NOMOVE_NOAUTO,
+  _ARM_UP_NOAUTO,
+  _ARM_DOWN_NOAUTO,
+  _ARM_UP_AUTO,
+  _ARM_DOWN_AUTO,
+} arm_status_t;
 
 /*上段のリミットスイッチは押されているか*/
 #define _SW_UPPER_LIMIT_GPIOxID GPIOBID
