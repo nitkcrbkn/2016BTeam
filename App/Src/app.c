@@ -157,11 +157,11 @@ int ReelSystem(void){
   if( !( __RC_ISPRESSED_R1(g_rc_data)) &&
       !( __RC_ISPRESSED_L1(g_rc_data)) &&
       ( __RC_ISPRESSED_UP(g_rc_data))){
-    target = MD_REEL_DUTY;
+    target = -MD_REEL_DUTY;
   } else if(( __RC_ISPRESSED_DOWN(g_rc_data)) &&
             !( __RC_ISPRESSED_L1(g_rc_data)) &&
             !( __RC_ISPRESSED_R1(g_rc_data))){
-    target = -MD_REEL_DUTY;
+    target = MD_REEL_DUTY;
   } else{
     target = 0;
   }
