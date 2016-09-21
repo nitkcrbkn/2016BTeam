@@ -173,7 +173,7 @@ static
 int WheelSystem(void){
   int target;
   int gain = (MD_WHEEL_DUTY / DD_RC_ANALOG_MAX);
-  int rc_analogdata = -( DD_RCGetRY(g_rc_data));
+  int rc_analogdata = -( DD_RCGetLY(g_rc_data));
   const tc_const_t w_tcon = {
     .inc_con = 200,
     .dec_con = 400
