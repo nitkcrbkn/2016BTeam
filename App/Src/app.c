@@ -42,9 +42,6 @@ int ArmABSystem(void);
 static
 int ArmVMSystem(void);
 
-static
-int ClutchSystem(void);
-
 int appInit(void){
   message("msg", "hell");
 
@@ -99,17 +96,13 @@ int appTask(void){
   if( ret ){
     return ret;
   }
-  ret = ClutchSystem();
-  if( ret ){
-    return ret;
-  }
 
   return EXIT_SUCCESS;
 } /* appTask */
 
 static int LEDSystem(void){
   return EXIT_SUCCESS;
-} /* appTask */
+}
 
 /*アーム回転*/
 static
@@ -207,7 +200,7 @@ int ArmABSystem(void){
   if(( __RC_ISPRESSED_L1(g_rc_data)) &&
      ( __RC_ISPRESSED_R1(g_rc_data)) &&
      ( __RC_ISPRESSED_UP(g_rc_data))){
-    if(( had_pressed_lrc_s == 0 ) && ( g_ab_h[DRIVER_VM].dat & CLUTCH_SN )){
+    if( had_pressed_lrc_s == 0 ){
       g_ab_h[DRIVER_AB].dat ^= ARM_AB_0;
       g_ab_h[DRIVER_AB].dat ^= ARM_AB_1;
       had_pressed_lrc_s = 1;
@@ -232,21 +225,6 @@ int ArmVMSystem(void){
     }
   } else {
     had_pressed_circle_s = 0;
-  }
-  return EXIT_SUCCESS;
-}
-
-/*クラッチ機構*/
-static
-int ClutchSystem(void){
-  static int had_pressed_sqare_s = 0;
-  if( __RC_ISPRESSED_SQARE(g_rc_data)){
-    if( had_pressed_sqare_s == 0 ){
-      g_ab_h[DRIVER_VM].dat ^= CLUTCH_SN;
-      had_pressed_sqare_s = 1;
-    }
-  } else {
-    had_pressed_sqare_s = 0;
   }
   return EXIT_SUCCESS;
 }

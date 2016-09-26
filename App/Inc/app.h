@@ -69,9 +69,6 @@ int appInit(void);
 #define STICK_BOX_VM_0 (1<<0)
 #define STICK_BOX_VM_1 (1<<1)
 
-/*クラッチ機構用ソレノイド*/
-#define CLUTCH_SN (1<<2)
-
 #define MD_GAIN ( DD_MD_MAX_DUTY / DD_RC_ANALOG_MAX )
 
 #endif
