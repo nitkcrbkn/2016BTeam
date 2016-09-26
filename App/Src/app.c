@@ -150,11 +150,11 @@ int ReelSystem(void){
   if( !( __RC_ISPRESSED_R1(g_rc_data)) &&
       !( __RC_ISPRESSED_L1(g_rc_data)) &&
       ( __RC_ISPRESSED_UP(g_rc_data))){
-    target = -MD_REEL_DUTY;
+    target = MD_REEL_ROLLUP_DUTY;
   } else if(( __RC_ISPRESSED_DOWN(g_rc_data)) &&
             !( __RC_ISPRESSED_L1(g_rc_data)) &&
             !( __RC_ISPRESSED_R1(g_rc_data))){
-    target = MD_REEL_DUTY;
+    target = MD_REEL_RELEASE_DUTY;
   } else{
     target = 0;
   }
@@ -165,7 +165,7 @@ int ReelSystem(void){
 static
 int WheelSystem(void){
   int target;
-  int gain = (MD_WHEEL_DUTY / DD_RC_ANALOG_MAX);
+  int gain = (int)(MD_WHEEL_DUTY / DD_RC_ANALOG_MAX);
   int rc_analogdata = -( DD_RCGetLY(g_rc_data));
   const tc_const_t w_tcon = {
     .inc_con = 200,
