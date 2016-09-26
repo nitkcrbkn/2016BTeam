@@ -182,6 +182,10 @@ int suspensionSystem(void){
   int target;           /*目標となる制御値*/
   unsigned int idx;     /*インデックス*/
   int i;                /*カウンタ用*/
+  const tc_const_t tcon = {
+    .inc_con = 400,
+    .dec_con = 500
+  };
 
   /*for each motor*/
   for( i = 0; i < num_of_motor; i++ ){
@@ -234,7 +238,7 @@ int suspensionSystem(void){
     } else if( target < -MD_SUSPENSION_DUTY ){
       target = -MD_SUSPENSION_DUTY;
     }
-    TrapezoidCtrl(target, &g_md_h[idx], &g_tcon);
+    TrapezoidCtrl(target, &g_md_h[idx], &tcon);
 
   }
   return EXIT_SUCCESS;
