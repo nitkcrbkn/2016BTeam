@@ -19,7 +19,7 @@ int appInit(void);
 
 #define DD_USE_ENCODER1 0
 #define DD_USE_ENCODER2 0
-#define DD_NUM_OF_SV 4
+#define DD_NUM_OF_SV 0
 
 #include "DD_RC.h"
 #include "DD_MD.h"
@@ -68,12 +68,6 @@ int appInit(void);
 
 /*クラッチ機構用ソレノイド*/
 #define CLUTCH_SN (1<<2)
-
-/*サーボ定義*/
-#define LIFT_SL_SV_R 0
-#define LIFT_SL_SV_L 1
-#define ROTATE_SL_SV_R 2
-#define ROTATE_SL_SV_L 3
 
 #define MD_GAIN ( DD_MD_MAX_DUTY / DD_RC_ANALOG_MAX )
 
