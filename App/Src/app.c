@@ -141,30 +141,35 @@ int ArmRotate(void){
       (arm_mod == _ARM_DOWN_NOAUTO || arm_mod == _ARM_DOWN_AUTO)){
     arm_mod = _ARM_NOMOVE_NOAUTO;
   }
-  
+
   switch (arm_mod){
   case _ARM_NOMOVE_NOAUTO:
     arm_target = 0;
+    g_led_mode = lmode_1;
     break;
   case _ARM_UP_NOAUTO:
     arm_target = MD_ARM_UP_DUTY;
+    g_led_mode = lmode_1;
     break;
   case _ARM_DOWN_NOAUTO:
     arm_target = MD_ARM_DOWN_DUTY;
+    g_led_mode = lmode_1;
     break;
   case _ARM_UP_AUTO:
     arm_target = MD_ARM_UP_DUTY;
+    g_led_mode = lmode_2;
     break;
   case _ARM_DOWN_AUTO:
     arm_target = MD_ARM_DOWN_DUTY;
+    g_led_mode = lmode_2;
     break;
   default:
     arm_target = 0;
     break;
   }
-  
+
   TrapezoidCtrl(arm_target, &g_md_h[ARM_MOVE_MD], &arm_tcon);
-  
+
   return EXIT_SUCCESS;
 } /* ArmRotate */
 
