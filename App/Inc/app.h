@@ -28,6 +28,9 @@ int appInit(void);
 #define MD_WAIST_ROTATE_CW_DUTY MD_WAIST_ROTATE_DUTY
 #define MD_WAIST_ROTATE_CCW_DUTY -MD_WAIST_ROTATE_DUTY
 
+#define MD_WHEEL_DUTY 8000
+
+
 #define CENTRAL_THRESHOLD 4
 
 /*Reverse MD direction Flags*/
@@ -35,7 +38,7 @@ int appInit(void);
 #define _IS_REVERSE_L 0
 
 /*Num of device*/
-#define DD_NUM_OF_MD 4
+#define DD_NUM_OF_MD 5
 #define DD_NUM_OF_AB 1
 #define DD_NUM_OF_SV 0
 #define DD_USE_ENCODER1 0
@@ -48,6 +51,8 @@ int appInit(void);
 #define ARM_MOVE_MD 2
 /*腰回転用*/
 #define ROTATE_WAIST_MD 3
+/*イカズチ*/
+#define WHEEL_MD 4
 
 #define DRIVER_AB 0
 /*キック用シリンダ*/

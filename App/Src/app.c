@@ -34,6 +34,9 @@ static
 int WaistRotate(void);
 
 static
+int WheelSystem(void);
+
+static
 int ExpandSystem(void);
 
 int appInit(void){
@@ -80,6 +83,11 @@ int appTask(void){
 
   ret = WaistRotate();
   if( ret ){
+    return ret;
+  }
+
+  ret = WheelSystem();
+  if (ret){
     return ret;
   }
 
@@ -166,6 +174,26 @@ int WaistRotate(void){
     target = 0;
   }
   TrapezoidCtrl(target, &g_md_h[ROTATE_WAIST_MD], &tcon);
+  return EXIT_SUCCESS;
+}
+
+static
+int WheelSystem(void){
+  int target;
+  int gain = (int)(MD_WHEEL_DUTY / DD_RC_ANALOG_MAX);
+  int rc_analogdata = -( DD_RCGetLY(g_rc_data));
+  const tc_const_t w_tcon = {
+    .inc_con = 200,
+    .dec_con = 400
+  };
+
+  /*これは中央か?±3程度余裕を持つ必要がある。*/
+  if( abs(rc_analogdata) > CENTRAL_THRESHOLD ){
+    target = rc_analogdata * gain;
+  }else {
+    target = 0;
+  }
+  TrapezoidCtrl(target, &g_md_h[WHEEL_MD], &w_tcon);
   return EXIT_SUCCESS;
 }
 
