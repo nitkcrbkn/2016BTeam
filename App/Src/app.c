@@ -152,7 +152,20 @@ int ArmRotate(void){
 /*腰回転機構*/
 static
 int WaistRotate(void){
-  /*未実装 todo*/
+  int target;
+  const tc_const_t tcon = {
+    .inc_con = 200,
+    .dec_con = 10000
+  };
+
+  if(__RC_ISPRESSED_LEFT(g_rc_data)){
+    target = MD_WAIST_ROTATE_CCW_DUTY;
+  } else if(__RC_ISPRESSED_RIGHT(g_rc_data)){
+    target = MD_WAIST_ROTATE_CW_DUTY;
+  }else {
+    target = 0;
+  }
+  TrapezoidCtrl(target, &g_md_h[ROTATE_WAIST_MD], &tcon);
   return EXIT_SUCCESS;
 }
 
@@ -170,7 +183,7 @@ int ExpandSystem(void){
   } else {
     had_pressed_sqare_s = 0;
   }
-  
+
   return EXIT_SUCCESS;
 }
 
