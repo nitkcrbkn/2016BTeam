@@ -109,19 +109,23 @@ int ArmOC(void){
 /*Private アーム上下*/
 static
 int ArmRotate(void){
+  int target;
+  const tc_const_t tcon = {
+    .inc_con = 200,
+    .dec_con = 10000
+  };
+
   /*アーム上昇*/
   if( ( __RC_ISPRESSED_UP(g_rc_data)) &&
       !( _IS_PRESSED_UPPER_LIMITSW()) ){
-    g_md_h[ARM_MOVE_MD].mode = D_MMOD_BACKWARD;
-    g_md_h[ARM_MOVE_MD].duty = MD_ARM_DUTY;
+    target = MD_ARM_UP_DUTY;
   } else if( ( __RC_ISPRESSED_DOWN(g_rc_data)) &&
 	     !( _IS_PRESSED_LOWER_LIMITSW()) ){
-    g_md_h[ARM_MOVE_MD].mode = D_MMOD_FORWARD;
-    g_md_h[ARM_MOVE_MD].duty = MD_ARM_DUTY;
+    target = MD_ARM_DOWN_DUTY;
   }else {
-    g_md_h[ARM_MOVE_MD].duty = 0;
-    g_md_h[ARM_MOVE_MD].mode = D_MMOD_BRAKE;
+    target = 0;
   }
+  TrapezoidCtrl(target, &g_md_h[ARM_MOVE_MD], &tcon);
   return EXIT_SUCCESS;
 }
 
