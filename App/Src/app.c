@@ -281,10 +281,10 @@ int suspensionSystem(void){
       }
       if(( __RC_ISPRESSED_R2(g_rc_data)) &&
          !( __RC_ISPRESSED_L2(g_rc_data))){
-        target = -MD_SUSPENSION_DUTY / 2;
+        target = -MD_TURN_DUTY;
       } else if(( __RC_ISPRESSED_L2(g_rc_data)) &&
                 !( __RC_ISPRESSED_R2(g_rc_data))){
-        target = MD_SUSPENSION_DUTY / 2;
+        target = MD_TURN_DUTY;
       }
 #if _IS_REVERSE_R
       target = -target;
@@ -301,10 +301,10 @@ int suspensionSystem(void){
       }
       if(( __RC_ISPRESSED_R2(g_rc_data)) &&
          !( __RC_ISPRESSED_L2(g_rc_data))){
-        target = MD_SUSPENSION_DUTY / 2;
+        target = MD_TURN_DUTY;
       } else if(( __RC_ISPRESSED_L2(g_rc_data)) &&
                 !( __RC_ISPRESSED_R2(g_rc_data))){
-        target = -MD_SUSPENSION_DUTY / 2;
+        target = -MD_TURN_DUTY;
       }
 #if _IS_REVERSE_L
       target = -target;
