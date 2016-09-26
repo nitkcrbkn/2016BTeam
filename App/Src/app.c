@@ -25,6 +25,9 @@ static
 int ArmOC(void);
 
 static
+int KickABSystem(void);
+
+static
 int ArmRotate(void);
 
 static
@@ -70,6 +73,11 @@ int appTask(void){
     return ret;
   }
 
+  ret = KickABSystem();
+  if ( ret ){
+    return ret;
+  }
+
   ret = WaistRotate();
   if( ret ){
     return ret;
@@ -82,6 +90,24 @@ int appTask(void){
 
   return EXIT_SUCCESS;
 } /* appTask */
+
+/*キック用エアシリンダ*/
+static
+int KickABSystem(void){
+  static uint8_t had_pressed_lrc_s = 0;
+  if(( __RC_ISPRESSED_L1(g_rc_data)) &&
+     ( __RC_ISPRESSED_R1(g_rc_data)) &&
+     ( __RC_ISPRESSED_TRIANGLE(g_rc_data))){
+    if( had_pressed_lrc_s == 0 ){
+      g_ab_h[DRIVER_AB].dat ^= KICK_AB_R;
+      g_ab_h[DRIVER_AB].dat ^= KICK_AB_L;
+      had_pressed_lrc_s = 1;
+    }
+  } else {
+    had_pressed_lrc_s = 0;
+  }
+  return EXIT_SUCCESS;
+}
 
 /*Private アーム開閉*/
 static
