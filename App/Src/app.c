@@ -191,6 +191,7 @@ int ExpandSystem(void){
 static
 int suspensionSystem(void){
   const int num_of_motor = 2;/*モータの個数*/
+  const int gain = (int)(MD_SUSPENSION_DUTY / DD_RC_ANALOG_MAX);
   int rc_analogdata;    /*コントローラから送られるアナログデータを格納*/
   int target;           /*目標となる制御値*/
   unsigned int idx;     /*インデックス*/
@@ -210,7 +211,7 @@ int suspensionSystem(void){
       rc_analogdata = -( DD_RCGetRY(g_rc_data));
       /*これは中央か?±3程度余裕を持つ必要がある。*/
       if( abs(rc_analogdata) > CENTRAL_THRESHOLD ){
-        target = rc_analogdata * MD_GAIN;
+        target = rc_analogdata * gain;
       }
       if( __RC_ISPRESSED_R2(g_rc_data)){
         target = -MD_SUSPENSION_DUTY / 2;
