@@ -33,11 +33,6 @@ int WaistRotate(void);
 static
 int ExpandSystem(void);
 
-const tc_const_t g_tcon = {
-  200,
-  200
-};
-
 int appInit(void){
   message("msg", "Message");
   ad_init();
@@ -91,17 +86,16 @@ int appTask(void){
 /*Private アーム開閉*/
 static
 int ArmOC(void){
-  static int had_pressed_tri_s = 0;
+  static int had_pressed_cir_s = 0;
   if(( __RC_ISPRESSED_L1(g_rc_data)) &&
      ( __RC_ISPRESSED_R1(g_rc_data)) &&
-     ( __RC_ISPRESSED_TRIANGLE(g_rc_data))){
-    if( had_pressed_tri_s == 0 ){
+     ( __RC_ISPRESSED_CIRCLE(g_rc_data))){
+    if( had_pressed_cir_s == 0 ){
       g_ab_h[DRIVER_AB].dat ^= ARM_OC_AB;
-      g_ab_h[DRIVER_VM].dat ^= ARM_OC_VM;
-      had_pressed_tri_s = 1;
+      had_pressed_cir_s = 1;
     }
   } else {
-    had_pressed_tri_s = 0;
+    had_pressed_cir_s = 0;
   }
   return EXIT_SUCCESS;
 }

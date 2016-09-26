@@ -36,7 +36,7 @@ int appInit(void);
 
 /*Num of device*/
 #define DD_NUM_OF_MD 4
-#define DD_NUM_OF_AB 2
+#define DD_NUM_OF_AB 1
 #define DD_NUM_OF_SV 0
 #define DD_USE_ENCODER1 0
 #define DD_USE_ENCODER2 0
@@ -57,9 +57,6 @@ int appInit(void);
 #define ARM_OC_AB ( 1 << 0 )
 /*展開機構*/
 #define EXPAND_MECHA_AB ( 1 << 3 )
-
-#define DRIVER_VM 1
-#define ARM_OC_VM ( 1 << 0 )
 
 #define MD_GAIN ( DD_MD_MAX_DUTY / DD_RC_ANALOG_MAX )
 
