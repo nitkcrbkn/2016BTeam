@@ -106,7 +106,7 @@ int ArmOC(void){
 static
 int ArmRotate(void){
   const tc_const_t arm_tcon = {
-    .inc_con = 500,
+    .inc_con = 300,
     .dec_con = 10000
   };
   int arm_target;       /*アーム部のduty*/
@@ -179,8 +179,8 @@ int suspensionSystem(void){
   int i;                /*カウンタ用*/
 
   const tc_const_t suspension_tcon = {
-    .inc_con = 200,
-    .dec_con = 500
+    .inc_con = 100,
+    .dec_con = 250
   };
 
   /*for each motor*/
@@ -197,12 +197,12 @@ int suspensionSystem(void){
       }
       if(( __RC_ISPRESSED_R2(g_rc_data)) &&
          !( __RC_ISPRESSED_L2(g_rc_data))){
-        target = -MD_SUSPENSION_DUTY / 2;
+        target = -MD_TURN_DUTY;
       }
 
       if(( __RC_ISPRESSED_L2(g_rc_data)) &&
          !( __RC_ISPRESSED_R2(g_rc_data))){
-        target = MD_SUSPENSION_DUTY / 2;
+        target = MD_TURN_DUTY;
       }
 
       #if _IS_REVERSE_R
@@ -219,11 +219,11 @@ int suspensionSystem(void){
       }
       if(( __RC_ISPRESSED_R2(g_rc_data)) &&
          !( __RC_ISPRESSED_L2(g_rc_data))){
-        target = MD_SUSPENSION_DUTY / 2;
+        target = MD_TURN_DUTY;
       }
       if(( __RC_ISPRESSED_L2(g_rc_data)) &&
          !( __RC_ISPRESSED_R2(g_rc_data))){
-        target = -MD_SUSPENSION_DUTY / 2;
+        target = -MD_TURN_DUTY;
       }
 
       #if _IS_REVERSE_L
