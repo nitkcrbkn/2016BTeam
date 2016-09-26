@@ -273,8 +273,8 @@ int suspensionSystem(void){
   unsigned int idx;     /*インデックス*/
   int i;                /*カウンタ用*/
   const tc_const_t tcon = {
-    .inc_con = 400,
-    .dec_con = 500
+    .inc_con = 300,
+    .dec_con = 200
   };
 
   /*for each motor*/
