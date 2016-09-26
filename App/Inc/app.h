@@ -7,6 +7,14 @@
 int appTask(void);
 int appInit(void);
 
+typedef enum{
+  _ARM_NOMOVE_NOAUTO,
+  _ARM_UP_NOAUTO,
+  _ARM_DOWN_NOAUTO,
+  _ARM_UP_AUTO,
+  _ARM_DOWN_AUTO,
+} arm_status_t;
+
 /*上段のリミットスイッチは押されているか*/
 #define _SW_UPPER_LIMIT_GPIOxID GPIOBID
 #define _SW_UPPER_LIMIT_GPIOPIN GPIO_PIN_15

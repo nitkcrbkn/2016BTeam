@@ -137,25 +137,73 @@ int ArmOC(void){
 /*Private アーム上下*/
 static
 int ArmRotate(void){
-  int target;
-  const tc_const_t tcon = {
-    .inc_con = 200,
+  const tc_const_t arm_tcon = {
+    .inc_con = 300,
     .dec_con = 10000
   };
+  int arm_target;       /*アーム部のduty*/
+  static arm_status_t arm_mod = _ARM_NOMOVE_NOAUTO;
+  static int press_count = 0;
 
-  /*アーム上昇*/
-  if( ( __RC_ISPRESSED_UP(g_rc_data)) &&
-      !( _IS_PRESSED_UPPER_LIMITSW()) ){
-    target = MD_ARM_UP_DUTY;
-  } else if( ( __RC_ISPRESSED_DOWN(g_rc_data)) &&
-	     !( _IS_PRESSED_LOWER_LIMITSW()) ){
-    target = MD_ARM_DOWN_DUTY;
-  }else {
-    target = 0;
+  /*コントローラのボタンは押されているか*/
+  if (__RC_ISPRESSED_UP(g_rc_data)){
+    arm_mod = _ARM_UP_NOAUTO;
+    if (press_count++ >= 100){
+      arm_mod = _ARM_UP_AUTO;
+    }
   }
-  TrapezoidCtrl(target, &g_md_h[ARM_MOVE_MD], &tcon);
+  else if (__RC_ISPRESSED_DOWN(g_rc_data)){
+    arm_mod = _ARM_DOWN_NOAUTO;
+    if (press_count++ >= 100){
+      arm_mod = _ARM_DOWN_AUTO;
+    }
+  }
+  else {
+    if (arm_mod == _ARM_UP_NOAUTO || arm_mod == _ARM_DOWN_NOAUTO){
+      arm_mod = _ARM_NOMOVE_NOAUTO;
+    }
+    press_count = 0;
+  }
+  /*リミットスイッチは押されているか*/
+  if (_IS_PRESSED_UPPER_LIMITSW() &&
+      (arm_mod == _ARM_UP_NOAUTO || arm_mod == _ARM_UP_AUTO)){
+    arm_mod = _ARM_NOMOVE_NOAUTO;
+  }
+  else if (_IS_PRESSED_LOWER_LIMITSW() &&
+      (arm_mod == _ARM_DOWN_NOAUTO || arm_mod == _ARM_DOWN_AUTO)){
+    arm_mod = _ARM_NOMOVE_NOAUTO;
+  }
+
+  switch (arm_mod){
+  case _ARM_NOMOVE_NOAUTO:
+    arm_target = 0;
+    g_led_mode = lmode_1;
+    break;
+  case _ARM_UP_NOAUTO:
+    arm_target = MD_ARM_UP_DUTY;
+    g_led_mode = lmode_1;
+    break;
+  case _ARM_DOWN_NOAUTO:
+    arm_target = MD_ARM_DOWN_DUTY;
+    g_led_mode = lmode_1;
+    break;
+  case _ARM_UP_AUTO:
+    arm_target = MD_ARM_UP_DUTY;
+    g_led_mode = lmode_2;
+    break;
+  case _ARM_DOWN_AUTO:
+    arm_target = MD_ARM_DOWN_DUTY;
+    g_led_mode = lmode_2;
+    break;
+  default:
+    arm_target = 0;
+    break;
+  }
+
+  TrapezoidCtrl(arm_target, &g_md_h[ARM_MOVE_MD], &arm_tcon);
+
   return EXIT_SUCCESS;
-}
+} /* ArmRotate */
 
 /*腰回転機構*/
 static
