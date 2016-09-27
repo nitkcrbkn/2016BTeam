@@ -106,7 +106,7 @@ int ArmOC(void){
 static
 int ArmRotate(void){
   const tc_const_t arm_tcon = {
-    .inc_con = 300,
+    .inc_con = 150,
     .dec_con = 10000
   };
   int arm_target;       /*アーム部のduty*/
@@ -116,13 +116,13 @@ int ArmRotate(void){
   /*コントローラのボタンは押されているか*/
   if (__RC_ISPRESSED_UP(g_rc_data)){
     arm_mod = _ARM_UP_NOAUTO;
-    if (press_count++ >= 100){
+    if (press_count++ >= 80){
       arm_mod = _ARM_UP_AUTO;
     }
   }
   else if (__RC_ISPRESSED_DOWN(g_rc_data)){
     arm_mod = _ARM_DOWN_NOAUTO;
-    if (press_count++ >= 100){
+    if (press_count++ >= 80){
       arm_mod = _ARM_DOWN_AUTO;
     }
   }
