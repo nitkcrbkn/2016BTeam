@@ -18,6 +18,8 @@
  * g_rc_data...RCのデータ
  */
 
+int g_reverse_mode = 0;
+
 static
 int suspensionSystem(void);
 
@@ -32,6 +34,9 @@ int ArmRotate(void);
 
 static
 int WheelSystem(void);
+
+static
+int ToggleReverseMode(void);
 
 int appInit(void){
   message("msg", "Message");
@@ -76,6 +81,11 @@ int appTask(void){
   }
 
   ret = WheelSystem();
+  if (ret){
+    return ret;
+  }
+
+  ret = ToggleReverseMode();
   if (ret){
     return ret;
   }
@@ -161,15 +171,30 @@ int ArmRotate(void){
   switch (arm_mod){
   case _ARM_NOMOVE_NOAUTO:
     arm_target = 0;
-    g_led_mode = lmode_1;
+    if (g_reverse_mode){
+      g_led_mode = lmode_3;
+    }
+    else {
+      g_led_mode = lmode_1;
+    }
     break;
   case _ARM_UP_NOAUTO:
     arm_target = MD_ARM_UP_DUTY;
-    g_led_mode = lmode_1;
+    if (g_reverse_mode){
+      g_led_mode = lmode_3;
+    }
+    else {
+      g_led_mode = lmode_1;
+    }
     break;
   case _ARM_DOWN_NOAUTO:
     arm_target = MD_ARM_DOWN_DUTY;
-    g_led_mode = lmode_1;
+    if (g_reverse_mode){
+      g_led_mode = lmode_3;
+    }
+    else {
+      g_led_mode = lmode_1;
+    }
     break;
   case _ARM_UP_AUTO:
     arm_target = MD_ARM_UP_DUTY;
@@ -209,6 +234,22 @@ int WheelSystem(void){
   return EXIT_SUCCESS;
 }
 
+static
+int ToggleReverseMode(void){
+  static int had_pressed_LRSq_s = 0;
+  if(( __RC_ISPRESSED_L1(g_rc_data)) &&
+     ( __RC_ISPRESSED_R1(g_rc_data)) &&
+     ( __RC_ISPRESSED_SQARE(g_rc_data))){
+    if( had_pressed_LRSq_s == 0 ){
+      g_reverse_mode ^= 1;
+      had_pressed_LRSq_s = 1;
+    }
+  } else {
+    had_pressed_LRSq_s = 0;
+  }
+  return EXIT_SUCCESS;
+}
+
 /*プライベート 足回りシステム*/
 static
 int suspensionSystem(void){
@@ -234,6 +275,9 @@ int suspensionSystem(void){
       /*これは中央か?±3程度余裕を持つ必要がある。*/
       if( abs(rc_analogdata) > CENTRAL_THRESHOLD ){
         target = rc_analogdata * gain;
+        if (g_reverse_mode){
+          target = -target;
+        }
       }
       if( __RC_ISPRESSED_R2(g_rc_data)){
         target = -MD_SUSPENSION_DUTY / 2;
@@ -251,7 +295,10 @@ int suspensionSystem(void){
       rc_analogdata = -( DD_RCGetRY(g_rc_data));
       /*これは中央か?±3程度余裕を持つ必要がある。*/
       if( abs(rc_analogdata) > CENTRAL_THRESHOLD ){
-        target = rc_analogdata * MD_GAIN;
+        target = rc_analogdata * gain;
+        if (g_reverse_mode){
+          target = -target;
+        }
       }
       if( __RC_ISPRESSED_R2(g_rc_data)){
         target = MD_SUSPENSION_DUTY / 2;
@@ -274,6 +321,7 @@ int suspensionSystem(void){
     } else if( target < -MD_SUSPENSION_DUTY ){
       target = -MD_SUSPENSION_DUTY;
     }
+
     TrapezoidCtrl(target, &g_md_h[idx], &tcon);
 
   }
