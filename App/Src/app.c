@@ -185,7 +185,7 @@ int suspensionSystem(void){
 
   const tc_const_t suspension_tcon = {
     .inc_con = 100,
-    .dec_con = 250
+    .dec_con = 225
   };
 
   /*for each motor*/

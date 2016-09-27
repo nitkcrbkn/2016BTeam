@@ -36,8 +36,8 @@ typedef enum{
 #define CENTRAL_THRESHOLD 4
 
 /*Reverse MD direction Flags*/
-#define _IS_REVERSE_R 0
-#define _IS_REVERSE_L 1
+#define _IS_REVERSE_R 1
+#define _IS_REVERSE_L 0
 
 #define DD_NUM_OF_MD 3
 #define DD_NUM_OF_AB 1
