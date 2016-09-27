@@ -32,10 +32,6 @@ typedef enum{
 
 #define MD_SUSPENSION_DUTY 4000
 
-#define MD_WAIST_ROTATE_DUTY 4000
-#define MD_WAIST_ROTATE_CW_DUTY MD_WAIST_ROTATE_DUTY
-#define MD_WAIST_ROTATE_CCW_DUTY -MD_WAIST_ROTATE_DUTY
-
 #define MD_WHEEL_DUTY 8000
 
 
@@ -46,7 +42,7 @@ typedef enum{
 #define _IS_REVERSE_L 0
 
 /*Num of device*/
-#define DD_NUM_OF_MD 5
+#define DD_NUM_OF_MD 4
 #define DD_NUM_OF_AB 1
 #define DD_NUM_OF_SV 0
 #define DD_USE_ENCODER1 0
@@ -57,10 +53,8 @@ typedef enum{
 #define DRIVE_MD_L 1
 /*アーム上下用*/
 #define ARM_MOVE_MD 2
-/*腰回転用*/
-#define ROTATE_WAIST_MD 3
 /*イカズチ*/
-#define WHEEL_MD 4
+#define WHEEL_MD 3
 
 #define DRIVER_AB 0
 /*キック用シリンダ*/

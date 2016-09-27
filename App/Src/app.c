@@ -31,9 +31,6 @@ static
 int ArmRotate(void);
 
 static
-int WaistRotate(void);
-
-static
 int WheelSystem(void);
 
 static
@@ -78,11 +75,6 @@ int appTask(void){
 
   ret = KickABSystem();
   if ( ret ){
-    return ret;
-  }
-
-  ret = WaistRotate();
-  if( ret ){
     return ret;
   }
 
@@ -204,26 +196,6 @@ int ArmRotate(void){
 
   return EXIT_SUCCESS;
 } /* ArmRotate */
-
-/*腰回転機構*/
-static
-int WaistRotate(void){
-  int target;
-  const tc_const_t tcon = {
-    .inc_con = 200,
-    .dec_con = 10000
-  };
-
-  if(__RC_ISPRESSED_LEFT(g_rc_data)){
-    target = MD_WAIST_ROTATE_CCW_DUTY;
-  } else if(__RC_ISPRESSED_RIGHT(g_rc_data)){
-    target = MD_WAIST_ROTATE_CW_DUTY;
-  }else {
-    target = 0;
-  }
-  TrapezoidCtrl(target, &g_md_h[ROTATE_WAIST_MD], &tcon);
-  return EXIT_SUCCESS;
-}
 
 static
 int WheelSystem(void){
