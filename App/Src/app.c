@@ -33,9 +33,6 @@ int ArmRotate(void);
 static
 int WheelSystem(void);
 
-static
-int ExpandSystem(void);
-
 int appInit(void){
   message("msg", "Message");
   ad_init();
@@ -80,11 +77,6 @@ int appTask(void){
 
   ret = WheelSystem();
   if (ret){
-    return ret;
-  }
-
-  ret = ExpandSystem();
-  if( ret ){
     return ret;
   }
 
@@ -214,24 +206,6 @@ int WheelSystem(void){
     target = 0;
   }
   TrapezoidCtrl(target, &g_md_h[WHEEL_MD], &w_tcon);
-  return EXIT_SUCCESS;
-}
-
-/*展開機構*/
-static
-int ExpandSystem(void){
-  static int had_pressed_sqare_s = 0;
-  if(( __RC_ISPRESSED_L1(g_rc_data)) &&
-     ( __RC_ISPRESSED_R1(g_rc_data)) &&
-     ( __RC_ISPRESSED_SQARE(g_rc_data))){
-    if( had_pressed_sqare_s == 0 ){
-      g_ab_h[DRIVER_AB].dat ^= EXPAND_MECHA_AB;
-      had_pressed_sqare_s = 1;
-    }
-  } else {
-    had_pressed_sqare_s = 0;
-  }
-
   return EXIT_SUCCESS;
 }
 

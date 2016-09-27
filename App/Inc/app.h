@@ -62,8 +62,6 @@ typedef enum{
 #define KICK_AB_L ( 1 << 5 )
 /*アーム開閉用*/
 #define ARM_OC_AB ( 1 << 0 )
-/*展開機構*/
-#define EXPAND_MECHA_AB ( 1 << 3 )
 
 #define MD_GAIN ( DD_MD_MAX_DUTY / DD_RC_ANALOG_MAX )
 
