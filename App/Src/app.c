@@ -108,7 +108,7 @@ static int LEDSystem(void){
 static
 int RotationArm(void){
   const tc_const_t arm_tcon = {
-    .inc_con = 200,
+    .inc_con = 100,
     .dec_con = 1000
   };
   int target;
@@ -135,8 +135,8 @@ int RotationArm(void){
 static
 int ReelSystem(void){
   const tc_const_t reel_tcon = {
-    .inc_con = 150,
-    .dec_con = 500
+    .inc_con = 100,
+    .dec_con = 250
   };
   int target;
 
@@ -161,8 +161,8 @@ int WheelSystem(void){
   int gain = (int)(MD_WHEEL_DUTY / DD_RC_ANALOG_MAX);
   int rc_analogdata = -( DD_RCGetLY(g_rc_data));
   const tc_const_t w_tcon = {
-    .inc_con = 200,
-    .dec_con = 400
+    .inc_con = 150,
+    .dec_con = 200
   };
 
   /*これは中央か?±3程度余裕を持つ必要がある。*/
@@ -233,8 +233,8 @@ int ArmVMSystem(void){
 static
 int suspensionSystem(void){
   const tc_const_t suspension_tcon = {
-    .inc_con = 200,
-    .dec_con = 500
+    .inc_con = 150,
+    .dec_con = 250
   };
 
   const int num_of_motor = 2;/*モータの個数*/
