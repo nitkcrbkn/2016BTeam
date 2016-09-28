@@ -31,6 +31,7 @@ typedef enum{
 #define MD_ARM_DOWN_DUTY MD_ARM_DUTY
 
 #define MD_SUSPENSION_DUTY 4000
+#define MD_TURN_DUTY 3000
 
 #define MD_WHEEL_DUTY 8000
 
