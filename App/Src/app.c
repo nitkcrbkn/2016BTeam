@@ -217,17 +217,22 @@ int ArmRotate(void){
 static
 int WheelSystem(void){
   int target;
-  int gain = (int)(MD_WHEEL_DUTY / DD_RC_ANALOG_MAX);
-  int rc_analogdata = ( DD_RCGetLY(g_rc_data));
   const tc_const_t w_tcon = {
-    .inc_con = 200,
-    .dec_con = 400
+    .inc_con = 100,
+    .dec_con = 200
   };
 
-  /*これは中央か?±3程度余裕を持つ必要がある。*/
-  if( abs(rc_analogdata) > CENTRAL_THRESHOLD ){
-    target = rc_analogdata * gain;
-  }else {
+  if(!( __RC_ISPRESSED_L1(g_rc_data)) &&
+     !( __RC_ISPRESSED_R1(g_rc_data)) &&
+     ( __RC_ISPRESSED_TRIANGLE(g_rc_data))){
+       target = -MD_WHEEL_DUTY;
+     }
+  else if(!( __RC_ISPRESSED_L1(g_rc_data)) &&
+          !( __RC_ISPRESSED_R1(g_rc_data)) &&
+          (__RC_ISPRESSED_CROSS(g_rc_data))){
+       target = MD_WHEEL_DUTY;
+     }
+  else {
     target = 0;
   }
   TrapezoidCtrl(target, &g_md_h[WHEEL_MD], &w_tcon);
