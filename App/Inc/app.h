@@ -30,13 +30,13 @@ typedef enum{
 #define MD_ARM_UP_DUTY -MD_ARM_DUTY
 #define MD_ARM_DOWN_DUTY MD_ARM_DUTY
 
-#define MD_SUSPENSION_DUTY 4000
+#define MD_SUSPENSION_DUTY 3000
 #define MD_TURN_DUTY 3000
 
 #define MD_WHEEL_DUTY 8000
 
 
-#define CENTRAL_THRESHOLD 4
+#define CENTRAL_THRESHOLD 5
 
 /*Reverse MD direction Flags*/
 #define _IS_REVERSE_R 1
