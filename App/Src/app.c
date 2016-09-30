@@ -114,35 +114,32 @@ int ArmRotate(void){
   static int press_count = 0;
 
   /*コントローラのボタンは押されているか*/
-  if (__RC_ISPRESSED_UP(g_rc_data)){
+  if( __RC_ISPRESSED_UP(g_rc_data)){
     arm_mod = _ARM_UP_NOAUTO;
-    if (press_count++ >= 80){
+    if( press_count++ >= 80 ){
       arm_mod = _ARM_UP_AUTO;
     }
-  }
-  else if (__RC_ISPRESSED_DOWN(g_rc_data)){
+  }else if( __RC_ISPRESSED_DOWN(g_rc_data)){
     arm_mod = _ARM_DOWN_NOAUTO;
-    if (press_count++ >= 80){
+    if( press_count++ >= 80 ){
       arm_mod = _ARM_DOWN_AUTO;
     }
-  }
-  else {
-    if (arm_mod == _ARM_UP_NOAUTO || arm_mod == _ARM_DOWN_NOAUTO){
+  }else  {
+    if( arm_mod == _ARM_UP_NOAUTO || arm_mod == _ARM_DOWN_NOAUTO ){
       arm_mod = _ARM_NOMOVE_NOAUTO;
     }
     press_count = 0;
   }
   /*リミットスイッチは押されているか*/
-  if (_IS_PRESSED_UPPER_LIMITSW() &&
-      (arm_mod == _ARM_UP_NOAUTO || arm_mod == _ARM_UP_AUTO)){
+  if( _IS_PRESSED_UPPER_LIMITSW() &&
+      ( arm_mod == _ARM_UP_NOAUTO || arm_mod == _ARM_UP_AUTO )){
     arm_mod = _ARM_NOMOVE_NOAUTO;
-  }
-  else if (_IS_PRESSED_LOWER_LIMITSW() &&
-      (arm_mod == _ARM_DOWN_NOAUTO || arm_mod == _ARM_DOWN_AUTO)){
+  }else if( _IS_PRESSED_LOWER_LIMITSW() &&
+            ( arm_mod == _ARM_DOWN_NOAUTO || arm_mod == _ARM_DOWN_AUTO )){
     arm_mod = _ARM_NOMOVE_NOAUTO;
   }
 
-  switch (arm_mod){
+  switch( arm_mod ){
   case _ARM_NOMOVE_NOAUTO:
     arm_target = 0;
     g_led_mode = lmode_1;
@@ -179,7 +176,7 @@ int suspensionSystem(void){
   const int num_of_motor = 2;/*モータの個数*/
   int rc_analogdata;    /*コントローラから送られるアナログデータを格納*/
   int target;           /*目標となる制御値*/
-  int gain = (int)(MD_SUSPENSION_DUTY / DD_RC_ANALOG_MAX);
+  int gain = (int)( MD_SUSPENSION_DUTY / DD_RC_ANALOG_MAX );
   unsigned int idx;     /*インデックス*/
   int i;                /*カウンタ用*/
 
@@ -249,3 +246,4 @@ int suspensionSystem(void){
   }
   return EXIT_SUCCESS;
 } /* suspensionSystem */
+
