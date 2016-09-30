@@ -4,53 +4,61 @@
 /*NO Device mode*/
 #define _NO_DEVICE 0
 
-#include "DD_RC.h"
-#include "DD_MD.h"
-
 int appTask(void);
 int appInit(void);
+
+/*アーム部の自動昇降モードのステータス*/
+typedef enum{
+  _ARM_NOMOVE_NOAUTO,
+  _ARM_UP_NOAUTO,
+  _ARM_DOWN_NOAUTO,
+  _ARM_UP_AUTO,
+  _ARM_DOWN_AUTO,
+} arm_status_t;
 
 /*上段のリミットスイッチは押されているか*/
 #define _SW_UPPER_LIMIT_GPIOxID GPIOBID
 #define _SW_UPPER_LIMIT_GPIOPIN GPIO_PIN_15
-#define _IS_SW_UPPER_LIMIT() (MW_GPIORead(_SW_UPPER_LIMIT_GPIOxID, _SW_UPPER_LIMIT_GPIOPIN))
+#define _IS_PRESSED_UPPER_LIMITSW() (!(MW_GPIORead(_SW_UPPER_LIMIT_GPIOxID, _SW_UPPER_LIMIT_GPIOPIN)))
 
 /*下段のリミットスイッチは押されているか*/
 #define _SW_LOWER_LIMIT_GPIOxID GPIOCID
 #define _SW_LOWER_LIMIT_GPIOPIN GPIO_PIN_0
-#define _IS_SW_LOWER_LIMIT() (MW_GPIORead(_SW_LOWER_LIMIT_GPIOxID, _SW_LOWER_LIMIT_GPIOPIN))
+#define _IS_PRESSED_LOWER_LIMITSW() (!(MW_GPIORead(_SW_LOWER_LIMIT_GPIOxID, _SW_LOWER_LIMIT_GPIOPIN)))
 
 /*アーム上下用モータのduty*/
-#define MD_ARM_DUTY 5000
-#define MD_SUSPENSION_DUTY 5000
+#define _ARM_DUTY 9500
+#define MD_ARM_UP_DUTY -_ARM_DUTY
+#define MD_ARM_DOWN_DUTY _ARM_DUTY
+#define MD_SUSPENSION_DUTY 3000
+#define MD_TURN_DUTY 2000
 
 #define CENTRAL_THRESHOLD 4
 
 /*Reverse MD direction Flags*/
-#define _IS_REVERSE_R 0
+#define _IS_REVERSE_R 1
 #define _IS_REVERSE_L 0
 
-#define DD_NUM_OF_MD 5
-#define DD_NUM_OF_AB 2
+#define DD_NUM_OF_MD 3
+#define DD_NUM_OF_AB 1
+#define DD_NUM_OF_SV 0
+#define DD_USE_ENCODER1 0
+#define DD_USE_ENCODER2 0
 
 /*駆動部*/
 #define DRIVE_MD_R 0
 #define DRIVE_MD_L 1
 
-#define STEER_MD_R 2
-#define STEER_MD_L 3
+/* #define STEER_MD_R 2 */
+/* #define STEER_MD_L 3 */
 
 /*アーム上下用*/
-#define ARM_MOVE_MD 4
+#define ARM_MOVE_MD 2
 
 #define DRIVER_AB 0
-#define DRIVER_VM 1
 
 /*アーム開閉用*/
 #define ARM_OC_AB (1<<0)
-
-/*箱吸着用真空モータ*/
-#define STICK_BOX_VM (1<<0)
 
 #define MD_GAIN ( DD_MD_MAX_DUTY / DD_RC_ANALOG_MAX )
 
