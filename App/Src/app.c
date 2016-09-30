@@ -69,7 +69,7 @@ int appTask(void){
     return ret;
   }
   ret = WheelSystem();
-  if ( ret ){
+  if( ret ){
     return ret;
   }
   ret = RotationArm();
@@ -115,19 +115,19 @@ int RotationArm(void){
   if( !( __RC_ISPRESSED_L1(g_rc_data)) &&
       !( __RC_ISPRESSED_R1(g_rc_data)) &&
       ( __RC_ISPRESSED_RIGHT(g_rc_data)) &&
-      !(_IS_PRESSED_ARM_CW_LIMITSW())){
+      !( _IS_PRESSED_ARM_CW_LIMITSW())){
     target = MD_ARM_ROTATE_DUTY;
     TrapezoidCtrl(target, &g_md_h[ARM_ROTATE_MD], &arm_tcon);
   } else if( !( __RC_ISPRESSED_L1(g_rc_data)) &&
              !( __RC_ISPRESSED_R1(g_rc_data)) &&
-	            ( __RC_ISPRESSED_LEFT(g_rc_data)) &&
-             !(_IS_PRESSED_ARM_CCW_LIMITSW())){
+             ( __RC_ISPRESSED_LEFT(g_rc_data)) &&
+             !( _IS_PRESSED_ARM_CCW_LIMITSW())){
     target = -MD_ARM_ROTATE_DUTY;
     TrapezoidCtrl(target, &g_md_h[ARM_ROTATE_MD], &arm_tcon);
   }else {
     g_md_h[ARM_ROTATE_MD].mode = D_MMOD_BRAKE;
     g_md_h[ARM_ROTATE_MD].duty = 0;
-}
+  }
   return EXIT_SUCCESS;
 }
 
@@ -158,7 +158,7 @@ int ReelSystem(void){
 static
 int WheelSystem(void){
   int target;
-  int gain = (int)(MD_WHEEL_DUTY / DD_RC_ANALOG_MAX);
+  int gain = (int)( MD_WHEEL_DUTY / DD_RC_ANALOG_MAX );
   int rc_analogdata = -( DD_RCGetLY(g_rc_data));
   const tc_const_t w_tcon = {
     .inc_con = 150,
@@ -240,7 +240,7 @@ int suspensionSystem(void){
   const int num_of_motor = 2;/*モータの個数*/
   int rc_analogdata;    /*コントローラから送られるアナログデータを格納*/
   int target;           /*目標となる制御値*/
-  int gain = (int)(MD_SUSPENSION_DUTY / DD_RC_ANALOG_MAX);
+  int gain = (int)( MD_SUSPENSION_DUTY / DD_RC_ANALOG_MAX );
   unsigned int idx;     /*インデックス*/
   int i;                /*カウンタ用*/
 
@@ -303,3 +303,4 @@ int suspensionSystem(void){
   }
   return EXIT_SUCCESS;
 } /* suspensionSystem */
+
