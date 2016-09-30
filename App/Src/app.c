@@ -76,17 +76,17 @@ int appTask(void){
   }
 
   ret = KickABSystem();
-  if ( ret ){
+  if( ret ){
     return ret;
   }
 
   ret = WheelSystem();
-  if (ret){
+  if( ret ){
     return ret;
   }
 
   ret = ToggleReverseMode();
-  if (ret){
+  if( ret ){
     return ret;
   }
 
@@ -140,59 +140,53 @@ int ArmRotate(void){
   static int press_count = 0;
 
   /*コントローラのボタンは押されているか*/
-  if (__RC_ISPRESSED_UP(g_rc_data)){
+  if( __RC_ISPRESSED_UP(g_rc_data)){
     arm_mod = _ARM_UP_NOAUTO;
-    if (press_count++ >= 100){
+    if( press_count++ >= 100 ){
       arm_mod = _ARM_UP_AUTO;
     }
-  }
-  else if (__RC_ISPRESSED_DOWN(g_rc_data)){
+  }else if( __RC_ISPRESSED_DOWN(g_rc_data)){
     arm_mod = _ARM_DOWN_NOAUTO;
-    if (press_count++ >= 100){
+    if( press_count++ >= 100 ){
       arm_mod = _ARM_DOWN_AUTO;
     }
-  }
-  else {
-    if (arm_mod == _ARM_UP_NOAUTO || arm_mod == _ARM_DOWN_NOAUTO){
+  }else  {
+    if( arm_mod == _ARM_UP_NOAUTO || arm_mod == _ARM_DOWN_NOAUTO ){
       arm_mod = _ARM_NOMOVE_NOAUTO;
     }
     press_count = 0;
   }
   /*リミットスイッチは押されているか*/
-  if (_IS_PRESSED_UPPER_LIMITSW() &&
-      (arm_mod == _ARM_UP_NOAUTO || arm_mod == _ARM_UP_AUTO)){
+  if( _IS_PRESSED_UPPER_LIMITSW() &&
+      ( arm_mod == _ARM_UP_NOAUTO || arm_mod == _ARM_UP_AUTO )){
     arm_mod = _ARM_NOMOVE_NOAUTO;
-  }
-  else if (_IS_PRESSED_LOWER_LIMITSW() &&
-      (arm_mod == _ARM_DOWN_NOAUTO || arm_mod == _ARM_DOWN_AUTO)){
+  }else if( _IS_PRESSED_LOWER_LIMITSW() &&
+            ( arm_mod == _ARM_DOWN_NOAUTO || arm_mod == _ARM_DOWN_AUTO )){
     arm_mod = _ARM_NOMOVE_NOAUTO;
   }
 
-  switch (arm_mod){
+  switch( arm_mod ){
   case _ARM_NOMOVE_NOAUTO:
     arm_target = 0;
-    if (g_reverse_mode){
+    if( g_reverse_mode ){
       g_led_mode = lmode_3;
-    }
-    else {
+    }else  {
       g_led_mode = lmode_1;
     }
     break;
   case _ARM_UP_NOAUTO:
     arm_target = MD_ARM_UP_DUTY;
-    if (g_reverse_mode){
+    if( g_reverse_mode ){
       g_led_mode = lmode_3;
-    }
-    else {
+    }else  {
       g_led_mode = lmode_1;
     }
     break;
   case _ARM_DOWN_NOAUTO:
     arm_target = MD_ARM_DOWN_DUTY;
-    if (g_reverse_mode){
+    if( g_reverse_mode ){
       g_led_mode = lmode_3;
-    }
-    else {
+    }else  {
       g_led_mode = lmode_1;
     }
     break;
@@ -207,7 +201,7 @@ int ArmRotate(void){
   default:
     arm_target = 0;
     break;
-  }
+  } /* switch */
 
   TrapezoidCtrl(arm_target, &g_md_h[ARM_MOVE_MD], &arm_tcon);
 
@@ -222,17 +216,15 @@ int WheelSystem(void){
     .dec_con = 200
   };
 
-  if(!( __RC_ISPRESSED_L1(g_rc_data)) &&
-     !( __RC_ISPRESSED_R1(g_rc_data)) &&
-     ( __RC_ISPRESSED_TRIANGLE(g_rc_data))){
-       target = -MD_WHEEL_DUTY;
-     }
-  else if(!( __RC_ISPRESSED_L1(g_rc_data)) &&
-          !( __RC_ISPRESSED_R1(g_rc_data)) &&
-          (__RC_ISPRESSED_CROSS(g_rc_data))){
-       target = MD_WHEEL_DUTY;
-     }
-  else {
+  if( !( __RC_ISPRESSED_L1(g_rc_data)) &&
+      !( __RC_ISPRESSED_R1(g_rc_data)) &&
+      ( __RC_ISPRESSED_TRIANGLE(g_rc_data))){
+    target = -MD_WHEEL_DUTY;
+  }else if( !( __RC_ISPRESSED_L1(g_rc_data)) &&
+            !( __RC_ISPRESSED_R1(g_rc_data)) &&
+            ( __RC_ISPRESSED_CROSS(g_rc_data))){
+    target = MD_WHEEL_DUTY;
+  }else     {
     target = 0;
   }
   TrapezoidCtrl(target, &g_md_h[WHEEL_MD], &w_tcon);
@@ -259,7 +251,7 @@ int ToggleReverseMode(void){
 static
 int suspensionSystem(void){
   const int num_of_motor = 2;/*モータの個数*/
-  const int gain = (int)(MD_SUSPENSION_DUTY / DD_RC_ANALOG_MAX);
+  const int gain = (int)( MD_SUSPENSION_DUTY / DD_RC_ANALOG_MAX );
   int rc_analogdata;    /*コントローラから送られるアナログデータを格納*/
   int target;           /*目標となる制御値*/
   unsigned int idx;     /*インデックス*/
@@ -280,7 +272,7 @@ int suspensionSystem(void){
       /*これは中央か?±3程度余裕を持つ必要がある。*/
       if( abs(rc_analogdata) > CENTRAL_THRESHOLD ){
         target = rc_analogdata * gain;
-        if (g_reverse_mode){
+        if( g_reverse_mode ){
           target = -target;
         }
       }
@@ -291,7 +283,7 @@ int suspensionSystem(void){
       }
 
       #if _IS_REVERSE_R
-        target = -target;
+      target = -target;
       #endif
       break;
 
@@ -301,18 +293,18 @@ int suspensionSystem(void){
       /*これは中央か?±3程度余裕を持つ必要がある。*/
       if( abs(rc_analogdata) > CENTRAL_THRESHOLD ){
         target = rc_analogdata * gain;
-        if (g_reverse_mode){
+        if( g_reverse_mode ){
           target = -target;
         }
       }
       if( __RC_ISPRESSED_R2(g_rc_data)){
         target = MD_TURN_DUTY;
-      }else if( ( __RC_ISPRESSED_L2(g_rc_data)) ){
+      }else if(( __RC_ISPRESSED_L2(g_rc_data))){
         target = -MD_TURN_DUTY;
       }
 
       #if _IS_REVERSE_L
-        target = -target;
+      target = -target;
       #endif
       break;
 
@@ -328,7 +320,7 @@ int suspensionSystem(void){
     }
 
     TrapezoidCtrl(target, &g_md_h[idx], &tcon);
-
   }
   return EXIT_SUCCESS;
 } /* suspensionSystem */
+
