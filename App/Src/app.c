@@ -18,16 +18,14 @@
  * g_rc_data...RCのデータ
  */
 
-const tc_const_t g_tcon = {
-  .inc_con = 200,
-  .dec_con = 200
-};
-
 static
 int LEDSystem(void);
 
 static
 int suspensionSystem(void);
+
+static
+int WheelSystem(void);
 
 static
 int RotationArm(void);
@@ -43,9 +41,6 @@ int ArmABSystem(void);
 
 static
 int ArmVMSystem(void);
-
-static
-int ClutchSystem(void);
 
 int appInit(void){
   message("msg", "hell");
@@ -73,6 +68,10 @@ int appTask(void){
   if( ret ){
     return ret;
   }
+  ret = WheelSystem();
+  if( ret ){
+    return ret;
+  }
   ret = RotationArm();
   if( ret ){
     return ret;
@@ -97,56 +96,82 @@ int appTask(void){
   if( ret ){
     return ret;
   }
-  ret = ClutchSystem();
-  if( ret ){
-    return ret;
-  }
 
   return EXIT_SUCCESS;
 } /* appTask */
 
 static int LEDSystem(void){
   return EXIT_SUCCESS;
-} /* appTask */
+}
 
 /*アーム回転*/
 static
 int RotationArm(void){
+  const tc_const_t arm_tcon = {
+    .inc_con = 100,
+    .dec_con = 1000
+  };
+  int target;
   if( !( __RC_ISPRESSED_L1(g_rc_data)) &&
       !( __RC_ISPRESSED_R1(g_rc_data)) &&
-      ( __RC_ISPRESSED_RIGHT(g_rc_data))){
-    g_md_h[ARM_ROTATE_MD].mode = D_MMOD_FORWARD;
-    g_md_h[ARM_ROTATE_MD].duty = MD_ARM_ROTATE_DUTY;
-    return EXIT_SUCCESS;
+      ( __RC_ISPRESSED_RIGHT(g_rc_data)) &&
+      !( _IS_PRESSED_ARM_CW_LIMITSW())){
+    target = MD_ARM_ROTATE_DUTY;
+    TrapezoidCtrl(target, &g_md_h[ARM_ROTATE_MD], &arm_tcon);
   } else if( !( __RC_ISPRESSED_L1(g_rc_data)) &&
              !( __RC_ISPRESSED_R1(g_rc_data)) &&
-             ( __RC_ISPRESSED_LEFT(g_rc_data))){
-    g_md_h[ARM_ROTATE_MD].mode = D_MMOD_BACKWARD;
-    g_md_h[ARM_ROTATE_MD].duty = MD_ARM_ROTATE_DUTY;
-    return EXIT_SUCCESS;
+             ( __RC_ISPRESSED_LEFT(g_rc_data)) &&
+             !( _IS_PRESSED_ARM_CCW_LIMITSW())){
+    target = -MD_ARM_ROTATE_DUTY;
+    TrapezoidCtrl(target, &g_md_h[ARM_ROTATE_MD], &arm_tcon);
+  }else {
+    g_md_h[ARM_ROTATE_MD].mode = D_MMOD_BRAKE;
+    g_md_h[ARM_ROTATE_MD].duty = 0;
   }
-  g_md_h[ARM_ROTATE_MD].mode = D_MMOD_FREE;
-  g_md_h[ARM_ROTATE_MD].duty = 0;
   return EXIT_SUCCESS;
 }
 
 /*リール機構*/
 static
 int ReelSystem(void){
+  const tc_const_t reel_tcon = {
+    .inc_con = 100,
+    .dec_con = 250
+  };
+  int target;
+
   if( !( __RC_ISPRESSED_R1(g_rc_data)) &&
       !( __RC_ISPRESSED_L1(g_rc_data)) &&
       ( __RC_ISPRESSED_UP(g_rc_data))){
-    g_md_h[REEL_MECHA_MD].mode = D_MMOD_FORWARD;
-    g_md_h[REEL_MECHA_MD].duty = MD_REEL_DUTY;
+    target = MD_REEL_ROLLUP_DUTY;
   } else if(( __RC_ISPRESSED_DOWN(g_rc_data)) &&
             !( __RC_ISPRESSED_L1(g_rc_data)) &&
             !( __RC_ISPRESSED_R1(g_rc_data))){
-    g_md_h[REEL_MECHA_MD].mode = D_MMOD_BACKWARD;
-    g_md_h[REEL_MECHA_MD].duty = MD_REEL_DUTY;
+    target = MD_REEL_RELEASE_DUTY;
   } else{
-    g_md_h[REEL_MECHA_MD].mode = D_MMOD_BRAKE;
-    g_md_h[REEL_MECHA_MD].duty = 0;
+    target = 0;
   }
+  TrapezoidCtrl(target, &g_md_h[REEL_MECHA_MD], &reel_tcon);
+  return EXIT_SUCCESS;
+}
+
+static
+int WheelSystem(void){
+  int target;
+  int gain = (int)( MD_WHEEL_DUTY / DD_RC_ANALOG_MAX );
+  int rc_analogdata = -( DD_RCGetLY(g_rc_data));
+  const tc_const_t w_tcon = {
+    .inc_con = 150,
+    .dec_con = 200
+  };
+
+  /*これは中央か?±3程度余裕を持つ必要がある。*/
+  if( abs(rc_analogdata) > CENTRAL_THRESHOLD ){
+    target = rc_analogdata * gain;
+  }else {
+    target = 0;
+  }
+  TrapezoidCtrl(target, &g_md_h[WHEEL_MD], &w_tcon);
   return EXIT_SUCCESS;
 }
 
@@ -175,7 +200,7 @@ int ArmABSystem(void){
   if(( __RC_ISPRESSED_L1(g_rc_data)) &&
      ( __RC_ISPRESSED_R1(g_rc_data)) &&
      ( __RC_ISPRESSED_UP(g_rc_data))){
-    if(( had_pressed_lrc_s == 0 ) && ( g_ab_h[DRIVER_VM].dat & CLUTCH_SN )){
+    if( had_pressed_lrc_s == 0 ){
       g_ab_h[DRIVER_AB].dat ^= ARM_AB_0;
       g_ab_h[DRIVER_AB].dat ^= ARM_AB_1;
       had_pressed_lrc_s = 1;
@@ -204,27 +229,18 @@ int ArmVMSystem(void){
   return EXIT_SUCCESS;
 }
 
-/*クラッチ機構*/
-static
-int ClutchSystem(void){
-  static int had_pressed_sqare_s = 0;
-  if( __RC_ISPRESSED_SQARE(g_rc_data)){
-    if( had_pressed_sqare_s == 0 ){
-      g_ab_h[DRIVER_VM].dat ^= CLUTCH_SN;
-      had_pressed_sqare_s = 1;
-    }
-  } else {
-    had_pressed_sqare_s = 0;
-  }
-  return EXIT_SUCCESS;
-}
-
 /*プライベート 足回りシステム*/
 static
 int suspensionSystem(void){
+  const tc_const_t suspension_tcon = {
+    .inc_con = 150,
+    .dec_con = 250
+  };
+
   const int num_of_motor = 2;/*モータの個数*/
   int rc_analogdata;    /*コントローラから送られるアナログデータを格納*/
   int target;           /*目標となる制御値*/
+  int gain = (int)( MD_SUSPENSION_DUTY / DD_RC_ANALOG_MAX );
   unsigned int idx;     /*インデックス*/
   int i;                /*カウンタ用*/
 
@@ -239,24 +255,18 @@ int suspensionSystem(void){
 
       /*これは中央か?±3程度余裕を持つ必要がある。*/
       if( abs(rc_analogdata) > CENTRAL_THRESHOLD ){
-        target = rc_analogdata * MD_GAIN;
+        target = rc_analogdata * gain;
       }
       if(( __RC_ISPRESSED_R2(g_rc_data)) &&
          !( __RC_ISPRESSED_L2(g_rc_data))){
-        target = -MD_SUSPENSION_DUTY;
+        target = -MD_TURN_DUTY;
       } else if(( __RC_ISPRESSED_L2(g_rc_data)) &&
                 !( __RC_ISPRESSED_R2(g_rc_data))){
-        target = MD_SUSPENSION_DUTY;
-      }
-      if( target > MD_SUSPENSION_DUTY ){
-        target = MD_SUSPENSION_DUTY;
-      } else if( target < -MD_SUSPENSION_DUTY ){
-        target = -MD_SUSPENSION_DUTY;
+        target = MD_TURN_DUTY;
       }
 #if _IS_REVERSE_R
       target = -target;
 #endif
-      TrapezoidCtrl(target, &g_md_h[idx], &g_tcon);
       break;
 
     case 1:
@@ -265,31 +275,32 @@ int suspensionSystem(void){
 
       /*これは中央か?±3程度余裕を持つ必要がある。*/
       if( abs(rc_analogdata) > CENTRAL_THRESHOLD ){
-        target = rc_analogdata * MD_GAIN;
+        target = rc_analogdata * gain;
       }
       if(( __RC_ISPRESSED_R2(g_rc_data)) &&
          !( __RC_ISPRESSED_L2(g_rc_data))){
-        target = MD_SUSPENSION_DUTY;
+        target = MD_TURN_DUTY;
       } else if(( __RC_ISPRESSED_L2(g_rc_data)) &&
                 !( __RC_ISPRESSED_R2(g_rc_data))){
-        target = -MD_SUSPENSION_DUTY;
-      }
-
-      if( target > MD_SUSPENSION_DUTY ){
-        target = MD_SUSPENSION_DUTY;
-      } else if( target < -MD_SUSPENSION_DUTY ){
-        target = -MD_SUSPENSION_DUTY;
+        target = -MD_TURN_DUTY;
       }
 #if _IS_REVERSE_L
       target = -target;
 #endif
-      TrapezoidCtrl(target, &g_md_h[idx], &g_tcon);
       break;
 
     default:
       message("err", "real MDs are fewer than defined idx:%d", i);
       return EXIT_FAILURE;
     } /* switch */
+
+    if( target > MD_SUSPENSION_DUTY ){
+      target = MD_SUSPENSION_DUTY;
+    } else if( target < -MD_SUSPENSION_DUTY ){
+      target = -MD_SUSPENSION_DUTY;
+    }
+    TrapezoidCtrl(target, &g_md_h[idx], &suspension_tcon);
   }
   return EXIT_SUCCESS;
 } /* suspensionSystem */
+
