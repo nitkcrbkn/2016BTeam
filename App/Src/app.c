@@ -25,22 +25,22 @@ static
 int suspensionSystem(void);
 
 static
-int WheelSystem(void);
+int wheelSystem(void);
 
 static
-int RotationArm(void);
+int rotationArm(void);
 
 static
-int ReelSystem(void);
+int reelSystem(void);
 
 static
-int KickABSystem(void);
+int kickABSystem(void);
 
 static
-int ArmABSystem(void);
+int armABSystem(void);
 
 static
-int ArmVMSystem(void);
+int armVMSystem(void);
 
 int appInit(void){
   message("msg", "hell");
@@ -68,27 +68,27 @@ int appTask(void){
   if( ret ){
     return ret;
   }
-  ret = WheelSystem();
+  ret = wheelSystem();
   if( ret ){
     return ret;
   }
-  ret = RotationArm();
+  ret = rotationArm();
   if( ret ){
     return ret;
   }
-  ret = ReelSystem();
+  ret = reelSystem();
   if( ret ){
     return ret;
   }
-  ret = KickABSystem();
+  ret = kickABSystem();
   if( ret ){
     return ret;
   }
-  ret = ArmABSystem();
+  ret = armABSystem();
   if( ret ){
     return ret;
   }
-  ret = ArmVMSystem();
+  ret = armVMSystem();
   if( ret ){
     return ret;
   }
@@ -106,7 +106,7 @@ static int LEDSystem(void){
 
 /*アーム回転*/
 static
-int RotationArm(void){
+int rotationArm(void){
   const tc_const_t arm_tcon = {
     .inc_con = 100,
     .dec_con = 1000
@@ -117,13 +117,13 @@ int RotationArm(void){
       ( __RC_ISPRESSED_RIGHT(g_rc_data)) &&
       !( _IS_PRESSED_ARM_CW_LIMITSW())){
     target = MD_ARM_ROTATE_DUTY;
-    TrapezoidCtrl(target, &g_md_h[ARM_ROTATE_MD], &arm_tcon);
+    trapezoidCtrl(target, &g_md_h[ARM_ROTATE_MD], &arm_tcon);
   } else if( !( __RC_ISPRESSED_L1(g_rc_data)) &&
              !( __RC_ISPRESSED_R1(g_rc_data)) &&
              ( __RC_ISPRESSED_LEFT(g_rc_data)) &&
              !( _IS_PRESSED_ARM_CCW_LIMITSW())){
     target = -MD_ARM_ROTATE_DUTY;
-    TrapezoidCtrl(target, &g_md_h[ARM_ROTATE_MD], &arm_tcon);
+    trapezoidCtrl(target, &g_md_h[ARM_ROTATE_MD], &arm_tcon);
   }else {
     g_md_h[ARM_ROTATE_MD].mode = D_MMOD_BRAKE;
     g_md_h[ARM_ROTATE_MD].duty = 0;
@@ -133,7 +133,7 @@ int RotationArm(void){
 
 /*リール機構*/
 static
-int ReelSystem(void){
+int reelSystem(void){
   const tc_const_t reel_tcon = {
     .inc_con = 100,
     .dec_con = 250
@@ -151,12 +151,12 @@ int ReelSystem(void){
   } else{
     target = 0;
   }
-  TrapezoidCtrl(target, &g_md_h[REEL_MECHA_MD], &reel_tcon);
+  trapezoidCtrl(target, &g_md_h[REEL_MECHA_MD], &reel_tcon);
   return EXIT_SUCCESS;
 }
 
 static
-int WheelSystem(void){
+int wheelSystem(void){
   int target;
   int gain = (int)( MD_WHEEL_DUTY / DD_RC_ANALOG_MAX );
   int rc_analogdata = -( DD_RCGetLY(g_rc_data));
@@ -171,13 +171,13 @@ int WheelSystem(void){
   }else {
     target = 0;
   }
-  TrapezoidCtrl(target, &g_md_h[WHEEL_MD], &w_tcon);
+  trapezoidCtrl(target, &g_md_h[WHEEL_MD], &w_tcon);
   return EXIT_SUCCESS;
 }
 
 /*プライベート キック用シリンダ*/
 static
-int KickABSystem(void){
+int kickABSystem(void){
   static uint8_t had_pressed_lrc_s = 0;
   if(( __RC_ISPRESSED_L1(g_rc_data)) &&
      ( __RC_ISPRESSED_R1(g_rc_data)) &&
@@ -195,7 +195,7 @@ int KickABSystem(void){
 
 /*アーム展開機構*/
 static
-int ArmABSystem(void){
+int armABSystem(void){
   static uint8_t had_pressed_lrc_s = 0;
   if(( __RC_ISPRESSED_L1(g_rc_data)) &&
      ( __RC_ISPRESSED_R1(g_rc_data)) &&
@@ -213,7 +213,7 @@ int ArmABSystem(void){
 
 /*真空モータ*/
 static
-int ArmVMSystem(void){
+int armVMSystem(void){
   static uint8_t had_pressed_circle_s = 0;
   if(( __RC_ISPRESSED_CIRCLE(g_rc_data)) &&
      !( __RC_ISPRESSED_L1(g_rc_data)) &&
@@ -299,8 +299,7 @@ int suspensionSystem(void){
     } else if( target < -MD_SUSPENSION_DUTY ){
       target = -MD_SUSPENSION_DUTY;
     }
-    TrapezoidCtrl(target, &g_md_h[idx], &suspension_tcon);
+    trapezoidCtrl(target, &g_md_h[idx], &suspension_tcon);
   }
   return EXIT_SUCCESS;
 } /* suspensionSystem */
-
