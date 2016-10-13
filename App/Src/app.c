@@ -22,13 +22,13 @@ static
 int suspensionSystem(void);
 
 static
-int SteerCtrl(void);
+int steerCtrl(void);
 
 static
-int ArmOC(void);
+int armOC(void);
 
 static
-int ArmRotate(void);
+int armRotate(void);
 
 int appInit(void){
   message("msg", "Message");
@@ -57,17 +57,17 @@ int appTask(void){
     return ret;
   }
 
-  ret = SteerCtrl();
+  ret = steerCtrl();
   if( ret ){
     return ret;
   }
 
-  ret = ArmRotate();
+  ret = armRotate();
   if( ret ){
     return ret;
   }
 
-  ret = ArmOC();
+  ret = armOC();
   if( ret ){
     return ret;
   }
@@ -76,7 +76,7 @@ int appTask(void){
 
 /*Private ステア制御*/
 static
-int SteerCtrl(void){
+int steerCtrl(void){
   /* g_md_h[STEER_MD_R].mode = D_MMOD_FREE; */
   /* g_md_h[STEER_MD_R].duty = 0; */
   /* g_md_h[STEER_MD_L].mode = D_MMOD_FREE; */
@@ -87,7 +87,7 @@ int SteerCtrl(void){
 
 /*Private アーム開閉*/
 static
-int ArmOC(void){
+int armOC(void){
   static int had_pressed_tri_s = 0;
   if(( __RC_ISPRESSED_L1(g_rc_data)) &&
      ( __RC_ISPRESSED_R1(g_rc_data)) &&
@@ -104,7 +104,7 @@ int ArmOC(void){
 
 /*Private アーム上下*/
 static
-int ArmRotate(void){
+int armRotate(void){
   const tc_const_t arm_tcon = {
     .inc_con = 150,
     .dec_con = 10000
@@ -165,10 +165,10 @@ int ArmRotate(void){
     break;
   }
 
-  TrapezoidCtrl(arm_target, &g_md_h[ARM_MOVE_MD], &arm_tcon);
+  trapezoidCtrl(arm_target, &g_md_h[ARM_MOVE_MD], &arm_tcon);
 
   return EXIT_SUCCESS;
-} /* ArmRotate */
+} /* armRotate */
 
 /*プライベート 足回りシステム*/
 static
@@ -242,7 +242,7 @@ int suspensionSystem(void){
     } else if( target < -MD_SUSPENSION_DUTY ){
       target = -MD_SUSPENSION_DUTY;
     }
-    TrapezoidCtrl(target, &g_md_h[idx], &suspension_tcon);
+    trapezoidCtrl(target, &g_md_h[idx], &suspension_tcon);
   }
   return EXIT_SUCCESS;
 } /* suspensionSystem */
