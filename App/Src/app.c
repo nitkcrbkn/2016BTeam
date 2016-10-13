@@ -24,19 +24,19 @@ static
 int suspensionSystem(void);
 
 static
-int ArmOC(void);
+int armOC(void);
 
 static
-int KickABSystem(void);
+int kickABSystem(void);
 
 static
-int ArmRotate(void);
+int armRotate(void);
 
 static
-int WheelSystem(void);
+int wheelSystem(void);
 
 static
-int ToggleReverseMode(void);
+int toggleReverseMode(void);
 
 int appInit(void){
   message("msg", "Message");
@@ -65,27 +65,27 @@ int appTask(void){
     return ret;
   }
 
-  ret = ArmRotate();
+  ret = armRotate();
   if( ret ){
     return ret;
   }
 
-  ret = ArmOC();
+  ret = armOC();
   if( ret ){
     return ret;
   }
 
-  ret = KickABSystem();
+  ret = kickABSystem();
   if( ret ){
     return ret;
   }
 
-  ret = WheelSystem();
+  ret = wheelSystem();
   if( ret ){
     return ret;
   }
 
-  ret = ToggleReverseMode();
+  ret = toggleReverseMode();
   if( ret ){
     return ret;
   }
@@ -95,7 +95,7 @@ int appTask(void){
 
 /*キック用エアシリンダ*/
 static
-int KickABSystem(void){
+int kickABSystem(void){
   static uint8_t had_pressed_lrc_s = 0;
   if(( __RC_ISPRESSED_L1(g_rc_data)) &&
      ( __RC_ISPRESSED_R1(g_rc_data)) &&
@@ -113,7 +113,7 @@ int KickABSystem(void){
 
 /*Private アーム開閉*/
 static
-int ArmOC(void){
+int armOC(void){
   static int had_pressed_cir_s = 0;
   if(( __RC_ISPRESSED_L1(g_rc_data)) &&
      ( __RC_ISPRESSED_R1(g_rc_data)) &&
@@ -130,7 +130,7 @@ int ArmOC(void){
 
 /*Private アーム上下*/
 static
-int ArmRotate(void){
+int armRotate(void){
   const tc_const_t arm_tcon = {
     .inc_con = 300,
     .dec_con = 10000
@@ -203,13 +203,13 @@ int ArmRotate(void){
     break;
   } /* switch */
 
-  TrapezoidCtrl(arm_target, &g_md_h[ARM_MOVE_MD], &arm_tcon);
+  trapezoidCtrl(arm_target, &g_md_h[ARM_MOVE_MD], &arm_tcon);
 
   return EXIT_SUCCESS;
-} /* ArmRotate */
+} /* armRotate */
 
 static
-int WheelSystem(void){
+int wheelSystem(void){
   int target;
   const tc_const_t w_tcon = {
     .inc_con = 100,
@@ -227,12 +227,12 @@ int WheelSystem(void){
   }else     {
     target = 0;
   }
-  TrapezoidCtrl(target, &g_md_h[WHEEL_MD], &w_tcon);
+  trapezoidCtrl(target, &g_md_h[WHEEL_MD], &w_tcon);
   return EXIT_SUCCESS;
 }
 
 static
-int ToggleReverseMode(void){
+int toggleReverseMode(void){
   static int had_pressed_LRSq_s = 0;
   if(( __RC_ISPRESSED_L1(g_rc_data)) &&
      ( __RC_ISPRESSED_R1(g_rc_data)) &&
@@ -319,7 +319,7 @@ int suspensionSystem(void){
       target = -MD_SUSPENSION_DUTY;
     }
 
-    TrapezoidCtrl(target, &g_md_h[idx], &tcon);
+    trapezoidCtrl(target, &g_md_h[idx], &tcon);
   }
   return EXIT_SUCCESS;
 } /* suspensionSystem */

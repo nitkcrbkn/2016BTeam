@@ -4,7 +4,7 @@
 #include "trapezoid_ctrl.h"
 
 /*(目標制御値, インデックス,Duty上昇時の変化量, Duty下降の変化量)*/
-void TrapezoidCtrl(int target_duty, DD_MDHand_t *handle, const tc_const_t *idval){
+void trapezoidCtrl(int target_duty, DD_MDHand_t *handle, const tc_const_t *idval){
   int prev_duty;/*直前のDuty*/
   int duty = 0;
 
