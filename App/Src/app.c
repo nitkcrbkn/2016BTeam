@@ -111,8 +111,10 @@ int armRotate(void){
   };
   int arm_target;       /*アーム部のduty*/
   static arm_status_t arm_mod = _ARM_NOMOVE_NOAUTO;
+  const int arm_down_duty = MD_ARM_DOWN_DUTY * g_adjust.arm_rotate_duty.value / 100;
+  const int arm_up_duty = MD_ARM_UP_DUTY * g_adjust.arm_rotate_duty.value / 100;
   static int press_count = 0;
-
+ 
   /*コントローラのボタンは押されているか*/
   if( __RC_ISPRESSED_UP(g_rc_data)){
     arm_mod = _ARM_UP_NOAUTO;
@@ -145,19 +147,19 @@ int armRotate(void){
     g_led_mode = lmode_1;
     break;
   case _ARM_UP_NOAUTO:
-    arm_target = MD_ARM_UP_DUTY;
+    arm_target = arm_up_duty;
     g_led_mode = lmode_1;
     break;
   case _ARM_DOWN_NOAUTO:
-    arm_target = MD_ARM_DOWN_DUTY;
+    arm_target = arm_down_duty;
     g_led_mode = lmode_1;
     break;
   case _ARM_UP_AUTO:
-    arm_target = MD_ARM_UP_DUTY;
+    arm_target = arm_up_duty;
     g_led_mode = lmode_2;
     break;
   case _ARM_DOWN_AUTO:
-    arm_target = MD_ARM_DOWN_DUTY;
+    arm_target = arm_down_duty;
     g_led_mode = lmode_2;
     break;
   default:
@@ -176,7 +178,7 @@ int suspensionSystem(void){
   const int num_of_motor = 2;/*モータの個数*/
   int rc_analogdata;    /*コントローラから送られるアナログデータを格納*/
   int target;           /*目標となる制御値*/
-  int gain = (int)( MD_SUSPENSION_DUTY / DD_RC_ANALOG_MAX );
+  int gain = (int)( (MD_SUSPENSION_DUTY / DD_RC_ANALOG_MAX) * g_adjust.suspension_duty.value / 100);
   unsigned int idx;     /*インデックス*/
   int i;                /*カウンタ用*/
 
