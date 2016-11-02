@@ -19,9 +19,6 @@ DD_MDHand_t g_md_h[DD_NUM_OF_MD] = {
   { .add = 0x13,        /*リール機構*/
     .duty = 0,
     .mode = D_MMOD_FREE, },
-  { .add = 0x14,        /*タイヤ的ななにか*/
-    .duty = 0,
-    .mode = D_MMOD_FREE, },
 };
 #endif
 #if DD_NUM_OF_AB
