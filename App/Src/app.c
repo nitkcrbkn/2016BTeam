@@ -267,6 +267,10 @@ int suspensionSystem(void){
       return EXIT_FAILURE;
     } /* switch */
 
+    if (__RC_ISPRESSED_L1(g_rc_data)){
+      target /= 2;
+    }
+
     if( target > MD_SUSPENSION_DUTY ){
       target = MD_SUSPENSION_DUTY;
     } else if( target < -MD_SUSPENSION_DUTY ){
