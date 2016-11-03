@@ -267,7 +267,7 @@ int suspensionSystem(void){
       return EXIT_FAILURE;
     } /* switch */
 
-    if (__RC_ISPRESSED_L1(g_rc_data)){
+    if (__RC_ISPRESSED_R1(g_rc_data)){
       target /= 2;
     }
 
