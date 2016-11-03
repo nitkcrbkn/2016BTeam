@@ -116,12 +116,12 @@ int armRotate(void){
   static int press_count = 0;
  
   /*コントローラのボタンは押されているか*/
-  if( __RC_ISPRESSED_UP(g_rc_data)){
+  if( __RC_ISPRESSED_L1(g_rc_data)){
     arm_mod = _ARM_UP_NOAUTO;
     if( press_count++ >= 80 ){
       arm_mod = _ARM_UP_AUTO;
     }
-  }else if( __RC_ISPRESSED_DOWN(g_rc_data)){
+  }else if( __RC_ISPRESSED_L2(g_rc_data)){
     arm_mod = _ARM_DOWN_NOAUTO;
     if( press_count++ >= 80 ){
       arm_mod = _ARM_DOWN_AUTO;
