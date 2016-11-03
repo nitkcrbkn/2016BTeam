@@ -33,9 +33,6 @@ typedef enum{
 #define MD_SUSPENSION_DUTY 3000
 #define MD_TURN_DUTY 3000
 
-#define MD_WHEEL_DUTY 8000
-
-
 #define CENTRAL_THRESHOLD 5
 
 /*Reverse MD direction Flags*/
@@ -43,7 +40,7 @@ typedef enum{
 #define _IS_REVERSE_L 0
 
 /*Num of device*/
-#define DD_NUM_OF_MD 4
+#define DD_NUM_OF_MD 3
 #define DD_NUM_OF_AB 1
 #define DD_NUM_OF_SV 0
 #define DD_USE_ENCODER1 0
@@ -54,8 +51,6 @@ typedef enum{
 #define DRIVE_MD_L 1
 /*アーム上下用*/
 #define ARM_MOVE_MD 2
-/*イカズチ*/
-#define WHEEL_MD 3
 
 #define DRIVER_AB 0
 /*キック用シリンダ*/

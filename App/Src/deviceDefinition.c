@@ -16,9 +16,6 @@ DD_MDHand_t g_md_h[DD_NUM_OF_MD] = {
   { .add = 0x12,       /*アーム上下**/
     .duty = 0,
     .mode = D_MMOD_FREE, },
-  { .add = 0x14,       /*イカヅチ*/
-    .duty = 0,
-    .mode = D_MMOD_FREE, },
 };
 #endif
 #if DD_NUM_OF_AB

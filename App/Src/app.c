@@ -33,9 +33,6 @@ static
 int armRotate(void);
 
 static
-int wheelSystem(void);
-
-static
 int toggleReverseMode(void);
 
 int appInit(void){
@@ -76,11 +73,6 @@ int appTask(void){
   }
 
   ret = kickABSystem();
-  if( ret ){
-    return ret;
-  }
-
-  ret = wheelSystem();
   if( ret ){
     return ret;
   }
@@ -207,29 +199,6 @@ int armRotate(void){
 
   return EXIT_SUCCESS;
 } /* armRotate */
-
-static
-int wheelSystem(void){
-  int target;
-  const tc_const_t w_tcon = {
-    .inc_con = 100,
-    .dec_con = 200
-  };
-
-  if( !( __RC_ISPRESSED_L1(g_rc_data)) &&
-      !( __RC_ISPRESSED_R1(g_rc_data)) &&
-      ( __RC_ISPRESSED_TRIANGLE(g_rc_data))){
-    target = -MD_WHEEL_DUTY;
-  }else if( !( __RC_ISPRESSED_L1(g_rc_data)) &&
-            !( __RC_ISPRESSED_R1(g_rc_data)) &&
-            ( __RC_ISPRESSED_CROSS(g_rc_data))){
-    target = MD_WHEEL_DUTY;
-  }else     {
-    target = 0;
-  }
-  trapezoidCtrl(target, &g_md_h[WHEEL_MD], &w_tcon);
-  return EXIT_SUCCESS;
-}
 
 static
 int toggleReverseMode(void){
