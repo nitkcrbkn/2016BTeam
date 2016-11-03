@@ -199,15 +199,6 @@ int suspensionSystem(void){
       if( abs(rc_analogdata) > CENTRAL_THRESHOLD ){
         target = rc_analogdata * gain;
       }
-      if(( __RC_ISPRESSED_R2(g_rc_data)) &&
-         !( __RC_ISPRESSED_L2(g_rc_data))){
-        target = -MD_TURN_DUTY;
-      }
-
-      if(( __RC_ISPRESSED_L2(g_rc_data)) &&
-         !( __RC_ISPRESSED_R2(g_rc_data))){
-        target = MD_TURN_DUTY;
-      }
 
       #if _IS_REVERSE_R
       target = -target;
@@ -221,15 +212,7 @@ int suspensionSystem(void){
       if( abs(rc_analogdata) > CENTRAL_THRESHOLD ){
         target = rc_analogdata * gain;
       }
-      if(( __RC_ISPRESSED_R2(g_rc_data)) &&
-         !( __RC_ISPRESSED_L2(g_rc_data))){
-        target = MD_TURN_DUTY;
-      }
-      if(( __RC_ISPRESSED_L2(g_rc_data)) &&
-         !( __RC_ISPRESSED_R2(g_rc_data))){
-        target = -MD_TURN_DUTY;
-      }
-
+      
       #if _IS_REVERSE_L
       target = -target;
       #endif
