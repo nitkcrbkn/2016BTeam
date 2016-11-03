@@ -216,7 +216,7 @@ int suspensionSystem(void){
 
     case 1:
       idx = DRIVE_MD_L;
-      rc_analogdata = -( DD_RCGetRY(g_rc_data));
+      rc_analogdata = -( DD_RCGetLY(g_rc_data));
       /*これは中央か?±3程度余裕を持つ必要がある。*/
       if( abs(rc_analogdata) > CENTRAL_THRESHOLD ){
         target = rc_analogdata * gain;
