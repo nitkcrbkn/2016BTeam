@@ -224,7 +224,7 @@ int suspensionSystem(void){
     } /* switch */
 
     if (__RC_ISPRESSED_R1(g_rc_data)){
-      target /= 2;
+      target *= 2;
     }
     
     if( target > MD_SUSPENSION_DUTY ){
