@@ -151,17 +151,14 @@ int reelSystem(void){
 /*プライベート キック用シリンダ*/
 static
 int kickABSystem(void){
-  static uint8_t had_pressed_lrc_s = 0;
   if(( __RC_ISPRESSED_L1(g_rc_data)) &&
      ( __RC_ISPRESSED_R1(g_rc_data)) &&
      ( __RC_ISPRESSED_TRIANGLE(g_rc_data))){
-    if( had_pressed_lrc_s == 0 ){
-      g_ab_h[DRIVER_AB].dat ^= KICK_AB_R;
-      g_ab_h[DRIVER_AB].dat ^= KICK_AB_L;
-      had_pressed_lrc_s = 1;
-    }
+    g_ab_h[DRIVER_AB].dat |= KICK_AB_R;
+    g_ab_h[DRIVER_AB].dat |= KICK_AB_L;
   } else {
-    had_pressed_lrc_s = 0;
+    g_ab_h[DRIVER_AB].dat &= ~KICK_AB_R;
+    g_ab_h[DRIVER_AB].dat &= ~KICK_AB_L;
   }
   return EXIT_SUCCESS;
 }
@@ -169,17 +166,15 @@ int kickABSystem(void){
 /*アーム展開機構*/
 static
 int armABSystem(void){
-  static uint8_t had_pressed_lrc_s = 0;
   if(( __RC_ISPRESSED_L1(g_rc_data)) &&
      ( __RC_ISPRESSED_R1(g_rc_data)) &&
      ( __RC_ISPRESSED_UP(g_rc_data))){
-    if( had_pressed_lrc_s == 0 ){
-      g_ab_h[DRIVER_AB].dat ^= ARM_AB_0;
-      g_ab_h[DRIVER_AB].dat ^= ARM_AB_1;
-      had_pressed_lrc_s = 1;
-    }
-  } else {
-    had_pressed_lrc_s = 0;
+    g_ab_h[DRIVER_AB].dat |= ARM_AB_0;
+    g_ab_h[DRIVER_AB].dat |= ARM_AB_1;
+  }
+  else {
+    g_ab_h[DRIVER_AB].dat &= ~ARM_AB_0;
+    g_ab_h[DRIVER_AB].dat &= ~ARM_AB_1;
   }
   return EXIT_SUCCESS;
 }
