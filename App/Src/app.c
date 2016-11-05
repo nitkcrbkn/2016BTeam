@@ -183,17 +183,29 @@ int armABSystem(void){
 static
 int armVMSystem(void){
   static uint8_t had_pressed_circle_s = 0;
+  static uint8_t had_pressed_cross_s = 0;
   if(( __RC_ISPRESSED_CIRCLE(g_rc_data)) &&
      !( __RC_ISPRESSED_L1(g_rc_data)) &&
      !( __RC_ISPRESSED_R1(g_rc_data))){
     if( had_pressed_circle_s == 0 ){
       g_ab_h[DRIVER_VM].dat ^= STICK_BOX_VM_0;
-      g_ab_h[DRIVER_VM].dat ^= STICK_BOX_VM_1;
       had_pressed_circle_s = 1;
     }
   } else {
     had_pressed_circle_s = 0;
   }
+  
+  if(( __RC_ISPRESSED_CROSS(g_rc_data)) &&
+     !( __RC_ISPRESSED_L1(g_rc_data)) &&
+     !( __RC_ISPRESSED_R1(g_rc_data))){
+    if( had_pressed_cross_s == 0 ){
+      g_ab_h[DRIVER_VM].dat ^= STICK_BOX_VM_1;
+      had_pressed_cross_s = 1;
+    }
+  } else {
+    had_pressed_cross_s = 0;
+  }
+  
   return EXIT_SUCCESS;
 }
 
