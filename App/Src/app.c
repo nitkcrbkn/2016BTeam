@@ -89,8 +89,7 @@ int steerCtrl(void){
 static
 int armOC(void){
   static int had_pressed_tri_s = 0;
-  if(( __RC_ISPRESSED_L1(g_rc_data)) &&
-     ( __RC_ISPRESSED_R1(g_rc_data)) &&
+  if(( __RC_ISPRESSED_R1(g_rc_data)) &&
      ( __RC_ISPRESSED_TRIANGLE(g_rc_data))){
     if( had_pressed_tri_s == 0 ){
       g_ab_h[DRIVER_AB].dat ^= ARM_OC_AB;
