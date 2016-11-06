@@ -88,17 +88,20 @@ int appTask(void){
 /*キック用エアシリンダ*/
 static
 int kickABSystem(void){
-  static uint8_t had_pressed_lrc_s = 0;
+  static uint8_t open_count = KICK_AB_MAX_COUNT;
   if(( __RC_ISPRESSED_L1(g_rc_data)) &&
      ( __RC_ISPRESSED_R1(g_rc_data)) &&
      ( __RC_ISPRESSED_TRIANGLE(g_rc_data))){
-    if( had_pressed_lrc_s == 0 ){
-      g_ab_h[DRIVER_AB].dat ^= KICK_AB_R;
-      g_ab_h[DRIVER_AB].dat ^= KICK_AB_L;
-      had_pressed_lrc_s = 1;
-    }
-  } else {
-    had_pressed_lrc_s = 0;
+    open_count = 0;
+  }
+  if (open_count < KICK_AB_MAX_COUNT){
+    g_ab_h[DRIVER_AB].dat |= KICK_AB_R;
+    g_ab_h[DRIVER_AB].dat |= KICK_AB_L;
+    open_count++;
+  }
+  else {
+    g_ab_h[DRIVER_AB].dat &= ~KICK_AB_R;
+    g_ab_h[DRIVER_AB].dat &= ~KICK_AB_L;
   }
   return EXIT_SUCCESS;
 }

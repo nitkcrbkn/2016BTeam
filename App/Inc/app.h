@@ -1,3 +1,4 @@
+
 #ifndef __APP_H
 #define __APP_H
 
@@ -58,6 +59,9 @@ typedef enum{
 #define KICK_AB_L ( 1 << 5 )
 /*アーム開閉用*/
 #define ARM_OC_AB ( 1 << 0 )
+
+/*キックエアシリンダ用カウンタ最大値*/
+#define KICK_AB_MAX_COUNT 200
 
 #define MD_GAIN ( DD_MD_MAX_DUTY / DD_RC_ANALOG_MAX )
 
