@@ -151,12 +151,18 @@ int reelSystem(void){
 /*プライベート キック用シリンダ*/
 static
 int kickABSystem(void){
+  static int open_count = KICK_AB_MAX_COUNT;
   if(( __RC_ISPRESSED_L1(g_rc_data)) &&
      ( __RC_ISPRESSED_R1(g_rc_data)) &&
      ( __RC_ISPRESSED_TRIANGLE(g_rc_data))){
+    open_count = 0;
+  }
+  if (open_count < KICK_AB_MAX_COUNT){
     g_ab_h[DRIVER_AB].dat |= KICK_AB_R;
     g_ab_h[DRIVER_AB].dat |= KICK_AB_L;
-  } else {
+    open_count++;
+  }
+  else {
     g_ab_h[DRIVER_AB].dat &= ~KICK_AB_R;
     g_ab_h[DRIVER_AB].dat &= ~KICK_AB_L;
   }
@@ -166,11 +172,16 @@ int kickABSystem(void){
 /*アーム展開機構*/
 static
 int armABSystem(void){
+  static int open_count = ARM_AB_MAX_COUNT;
   if(( __RC_ISPRESSED_L1(g_rc_data)) &&
      ( __RC_ISPRESSED_R1(g_rc_data)) &&
      ( __RC_ISPRESSED_UP(g_rc_data))){
+    open_count = 0;
+  }
+  if (open_count < ARM_AB_MAX_COUNT){
     g_ab_h[DRIVER_AB].dat |= ARM_AB_0;
     g_ab_h[DRIVER_AB].dat |= ARM_AB_1;
+    open_count++;
   }
   else {
     g_ab_h[DRIVER_AB].dat &= ~ARM_AB_0;
