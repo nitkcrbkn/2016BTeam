@@ -151,20 +151,18 @@ int reelSystem(void){
 /*プライベート キック用シリンダ*/
 static
 int kickABSystem(void){
-  static int open_count = KICK_AB_MAX_COUNT;
+  static int had_pressed_command = 0;
   if(( __RC_ISPRESSED_L1(g_rc_data)) &&
      ( __RC_ISPRESSED_R1(g_rc_data)) &&
      ( __RC_ISPRESSED_TRIANGLE(g_rc_data))){
-    open_count = 0;
+    if (had_pressed_command == 0){
+      g_ab_h[DRIVER_AB].dat ^= KICK_AB_R;
+      g_ab_h[DRIVER_AB].dat ^= KICK_AB_L;
+      had_pressed_command = 1;
+    }
   }
-  if (open_count < KICK_AB_MAX_COUNT){
-    g_ab_h[DRIVER_AB].dat |= KICK_AB_R;
-    g_ab_h[DRIVER_AB].dat |= KICK_AB_L;
-    open_count++;
-  }
-  else {
-    g_ab_h[DRIVER_AB].dat &= ~KICK_AB_R;
-    g_ab_h[DRIVER_AB].dat &= ~KICK_AB_L;
+  else { 
+    had_pressed_command = 0;
   }
   return EXIT_SUCCESS;
 }

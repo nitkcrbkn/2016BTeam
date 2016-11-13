@@ -37,7 +37,7 @@ int appInit(void);
 #define MD_SUSPENSION_DUTY 3000
 #define MD_TURN_DUTY 2000
 #define MD_ARM_ROTATE_DUTY 5000
-#define MD_REEL_DUTY (DD_MD_MAX_DUTY-1)
+#define MD_REEL_DUTY 5000
 #define MD_REEL_ROLLUP_DUTY -MD_REEL_DUTY
 #define MD_REEL_RELEASE_DUTY MD_REEL_DUTY
 
@@ -70,8 +70,6 @@ int appInit(void);
 
 /*アーム用カウンタ最大値*/
 #define ARM_AB_MAX_COUNT 300
-/*壁キックシリンダ用カウンタ最大値*/
-#define KICK_AB_MAX_COUNT 100
 
 #define MD_GAIN ( DD_MD_MAX_DUTY / DD_RC_ANALOG_MAX )
 
