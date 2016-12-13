@@ -15,68 +15,19 @@ typedef enum{
 
 /*second, write const description.*/
 static const adjust_t defaultad={
-  .leftadjust = {
+  .suspension_duty = {
     .value = 0,
-    .maxvalue = 20,
-    .minvalue = -20,
-    .display_name = "left adjust",
+    .maxvalue = 100,
+    .minvalue = 0,
+    .display_name = "suspension duty",
     .display_unit = "%",
   },
-  .rightadjust = {
+  .arm_rotate_duty = {
     .value = 0,
-    .maxvalue = 20,
-    .minvalue = -20,
-    .display_name = "right adjust",
-    .display_unit = "%"
-  },
-  .steeringtime = {
-    .value = 50,
-    .maxvalue = 200,
+    .maxvalue = 100,
     .minvalue = 0,
-    .display_name = "steering time",
-    .display_unit = "*10ms",
-  },
-  .rctimeout = {
-    .value = 10,
-    .maxvalue = 999,
-    .minvalue = 1,
-    .display_name = "rc timeout",
-    .display_unit = "s",
-  },
-  .rc_centre_thereshold = {
-    .value = 4,
-    .maxvalue = 6,
-    .minvalue = 2,
-    .display_name = "rc cntr theres",
-    .display_unit = "/16",
-  },
-  .rc_centre_thereshold2 = {
-    .value = 4,
-    .maxvalue = 6,
-    .minvalue = 2,
-    .display_name = "rc cntr theres",
-    .display_unit = "/16",
-  },
-  .rc_centre_thereshold3 = {
-    .value = 4,
-    .maxvalue = 6,
-    .minvalue = 2,
-    .display_name = "rc cntr theres",
-    .display_unit = "/16",
-  },
-  .rc_centre_thereshold4 = {
-    .value = 4,
-    .maxvalue = 6,
-    .minvalue = 2,
-    .display_name = "rc cntr theres",
-    .display_unit = "/16",
-  },
-  .rc_centre_thereshold5 = {
-    .value = 4,
-    .maxvalue = 6,
-    .minvalue = 2,
-    .display_name = "rc cntr theres",
-    .display_unit = "/16",
+    .display_name = "arm rotate duty",
+    .display_unit = "%"
   },
   
   /*template
@@ -94,15 +45,8 @@ adjust_t g_adjust;
 
 /*finary, add edit list.*/
 const_element_t *editlist[_EDITLIST_NUM]={
-  &(g_adjust.rightadjust),
-  &(g_adjust.leftadjust),
-  &(g_adjust.steeringtime),
-  &(g_adjust.rctimeout),
-  &(g_adjust.rc_centre_thereshold),
-  &(g_adjust.rc_centre_thereshold2),
-  &(g_adjust.rc_centre_thereshold3),
-  &(g_adjust.rc_centre_thereshold4),
-  &(g_adjust.rc_centre_thereshold5),
+  &(g_adjust.suspension_duty),
+  &(g_adjust.arm_rotate_duty),
 };
 
 static
