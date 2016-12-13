@@ -31,16 +31,15 @@ int appInit(void);
 #define _IS_REVERSE_R 1
 #define _IS_REVERSE_L 0
 
-#define DD_NUM_OF_MD 5
+#define DD_NUM_OF_MD 4
 #define DD_NUM_OF_AB 2
 
 #define MD_SUSPENSION_DUTY 3000
 #define MD_TURN_DUTY 2000
-#define MD_ARM_ROTATE_DUTY 4000
-#define MD_REEL_DUTY 4000
-#define MD_REEL_ROLLUP_DUTY MD_REEL_DUTY
-#define MD_REEL_RELEASE_DUTY -MD_REEL_DUTY
-#define MD_WHEEL_DUTY 8000
+#define MD_ARM_ROTATE_DUTY 5000
+#define MD_REEL_DUTY 5000
+#define MD_REEL_ROLLUP_DUTY -MD_REEL_DUTY
+#define MD_REEL_RELEASE_DUTY MD_REEL_DUTY
 
 #define SV_ORIGIN_VALUE 100
 #define SV_RIGHT_ANGLE_VALUE 280
@@ -68,6 +67,9 @@ int appInit(void);
 /*箱吸着用真空モータ*/
 #define STICK_BOX_VM_0 (1<<0)
 #define STICK_BOX_VM_1 (1<<1)
+
+/*アーム用カウンタ最大値*/
+#define ARM_AB_MAX_COUNT 300
 
 #define MD_GAIN ( DD_MD_MAX_DUTY / DD_RC_ANALOG_MAX )
 
